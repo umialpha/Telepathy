@@ -267,14 +267,14 @@ stages:
         artifact: 'sdk_nuget'
         publishLocation: 'pipeline'
         
-    - task: NuGetCommand@2
-      displayName: 'Publish SDK to Internal Source'
-      inputs:        
-        command: 'push'
-        packagesToPush: '$(Build.ArtifactStagingDirectory)/**/*.nupkg;!$(Build.ArtifactStagingDirectory)/**/*.symbols.nupkg'
-        nuGetFeedType: 'internal'
-        publishVstsFeed: 'd967b926-1ec4-4fdb-8fb7-4a0dd25734dd'
-        allowPackageConflicts: true
+#    - task: NuGetCommand@2
+#      displayName: 'Publish SDK to Internal Source'
+#      inputs:        
+#        command: 'push'
+#        packagesToPush: '$(Build.ArtifactStagingDirectory)/**/*.nupkg;!$(Build.ArtifactStagingDirectory)/**/*.symbols.nupkg'
+#        nuGetFeedType: 'internal'
+#        publishVstsFeed: 'd967b926-1ec4-4fdb-8fb7-4a0dd25734dd'
+#        allowPackageConflicts: true
 
     - task: NuGetCommand@2
       displayName:  'Publish SDK to Public Source'
