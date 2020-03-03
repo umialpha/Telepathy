@@ -1,6 +1,5 @@
-﻿// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
-// Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
-
+﻿// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license
 
 using IdentityServer.Idsvr;
 using Microsoft.AspNetCore.Builder;
@@ -21,17 +20,12 @@ namespace IdentityServer
 
         public void ConfigureServices(IServiceCollection services)
         {
-            // uncomment, if you want to add an MVC-based UI
-            //services.AddControllersWithViews();
-
             var builder = services.AddIdentityServer()
                 .AddInMemoryIdentityResources(Config.Ids)
                 .AddInMemoryApiResources(Config.Apis)
                 .AddInMemoryClients(Config.Clients)
                 .AddTestUsers(TestUsers.Users);
 
-            // not recommended for production - you need to store your key material somewhere secure
-            //builder.AddDeveloperSigningCredential();
             builder.AddSigningCredential(Certificate.Get());
         }
 
@@ -42,18 +36,7 @@ namespace IdentityServer
                 app.UseDeveloperExceptionPage();
             }
 
-            // uncomment if you want to add MVC
-            //app.UseStaticFiles();
-            //app.UseRouting();
-
             app.UseIdentityServer();
-
-            // uncomment, if you want to add MVC
-            //app.UseAuthorization();
-            //app.UseEndpoints(endpoints =>
-            //{
-            //    endpoints.MapDefaultControllerRoute();
-            //});
         }
     }
 }

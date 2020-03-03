@@ -1,7 +1,9 @@
-﻿using System;
+﻿// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license
+
+using System;
 using System.IdentityModel.Configuration;
 using System.IdentityModel.Tokens;
-using System.Net;
 using System.ServiceModel;
 using System.ServiceModel.Channels;
 using System.ServiceModel.Description;
@@ -37,7 +39,6 @@ namespace WcfService
             var identityConfiguration = new IdentityConfiguration();
 
             identityConfiguration.SecurityTokenHandlers.Clear();
-            //identityConfiguration.SecurityTokenHandlers.Add(new IdentityServerWrappedJwtHandler("https://localhost:44333/core", "write"));
             identityConfiguration.SecurityTokenHandlers.Add(new IdentityServerWrappedJwtHandler("https://localhost:5000", "TestService"));
             identityConfiguration.ClaimsAuthorizationManager = new RequireAuthenticationAuthorizationManager();
 

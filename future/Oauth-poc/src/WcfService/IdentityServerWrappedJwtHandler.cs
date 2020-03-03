@@ -1,6 +1,8 @@
-﻿using IdentityModel.Client;
+﻿// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license
+
+using IdentityModel.Client;
 using Microsoft.IdentityModel.Logging;
-using Microsoft.IdentityModel.Protocols;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -44,7 +46,7 @@ namespace WcfService
             
             var parameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
             {
-                ValidAudiences = _requiredScopes,// _issuerName.EnsureTrailingSlash() + "resources",
+                ValidAudiences = _requiredScopes,
                 ValidIssuer = _issuerName,
                 IssuerSigningKey = new Microsoft.IdentityModel.Tokens.X509SecurityKey(_signingCert)
             };
@@ -83,21 +85,6 @@ namespace WcfService
                 Console.WriteLine(e);
                 throw;
             }
-
-            
-        }
-    }
-
-    internal static class StringExtensions
-    {
-        public static string EnsureTrailingSlash(this string input)
-        {
-            if (!input.EndsWith("/"))
-            {
-                return input + "/";
-            }
-
-            return input;
         }
     }
 }

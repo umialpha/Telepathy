@@ -32,7 +32,7 @@ Install Visual Studio 2019 and .NET Core 3.0 or later.
 ### Run with Command Line
 
 After building the project, 
-1. Run `IdentityServer.exe`
+1. Run `IdentityServer.exe` (With SelfHost)
 2. Run `WcfService.exe` 
 3. Run `WcfClient.exe alice alice` (There are 2 test users in identity Server, `alice` and `bob`, username password are same)
 4. In WcfClient console, there are 5 operate commands, `add` *message* (add a message for the client), `echo` (get all messages from all clients), `update` *messageOld messageNew* (update message), `info` (get the client info), and `exit`. Eg `add HelloWorld`

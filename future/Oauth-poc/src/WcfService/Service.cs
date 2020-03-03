@@ -1,8 +1,9 @@
-﻿using System.Collections.Generic;
+﻿// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license
+
 using System.Security.Claims;
 using System.ServiceModel;
 using System.Text;
-using System.Threading;
 using IdentityModel;
 
 namespace WcfService

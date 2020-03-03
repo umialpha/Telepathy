@@ -5,11 +5,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="Idsvr\idsrv3test.pfx" />
+    <None Remove="Idsvr\idsrv4test.pfx" />
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="Idsvr\idsrv3test.pfx" />
+    <EmbeddedResource Include="Idsvr\idsrv4test.pfx" />
   </ItemGroup>
   
   <ItemGroup>

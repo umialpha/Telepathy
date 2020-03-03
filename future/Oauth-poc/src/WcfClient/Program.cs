@@ -1,7 +1,8 @@
-﻿
+﻿// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license
+
 using System;
 using System.IdentityModel.Tokens;
-using System.Net;
 using System.Net.Http;
 using System.Security.Claims;
 using System.ServiceModel;
