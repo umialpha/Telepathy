@@ -72,7 +72,6 @@ namespace WcfClient
                     Console.WriteLine("Input operate error!");
                 }
             }
-
         }
 
         static GenericXmlSecurityToken WrapJwt(string jwt)
@@ -121,7 +120,6 @@ namespace WcfClient
                 return string.Empty;
             }
 
-
             var tokenResponse = await client.RequestClientCredentialsTokenAsync(new ClientCredentialsTokenRequest()
             {
                 Address = disco.TokenEndpoint,
@@ -130,8 +128,6 @@ namespace WcfClient
                 ClientSecret = "secret",
                 Scope = "TestService",
             });
-
-
 
             if (tokenResponse.IsError)
             {
@@ -152,7 +148,6 @@ namespace WcfClient
                 return string.Empty;
             }
 
-
             var tokenResponse = await client.RequestPasswordTokenAsync(new PasswordTokenRequest()
             {
                 Address = disco.TokenEndpoint,
@@ -164,8 +159,6 @@ namespace WcfClient
                 UserName = userName,
                 Password = password
             });
-
-
 
             if (tokenResponse.IsError)
             {

@@ -14,7 +14,6 @@ namespace WcfService
         [OperationContract]
         bool Add(string msg);
 
-
         [OperationContract]
         string Echo();
 
@@ -27,7 +26,6 @@ namespace WcfService
 
     class Service : IService
     {
-
         public bool Add(string msg)
         {
             var cp = ClaimsPrincipal.Current;
