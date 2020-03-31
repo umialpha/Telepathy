@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+option csharp_namespace = "BrokerServer";
+
+package brokerserver;
+
+// The greeting service definition.
+service Broker {
+	// Sends a greeting
+	rpc Start (stream TaskRequest) returns (stream TaskReply);
+}
+
+// The request message containing the user's name.
+message TaskRequest {
+	string id = 1;
+	string request = 2;
+}
+
+// The response message containing the greetings.
+message TaskReply {
+	string id = 1;
+	string node = 2;
+	string message = 3;
+}

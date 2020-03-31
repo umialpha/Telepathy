@@ -6,112 +6,155 @@ using System.Collections.Concurrent;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Collections.Generic;
+using System.Net;
+using System.Runtime.CompilerServices;
 using LogHelper;
 using Grpc.Net.Client;
 using Microsoft.Extensions.Logging;
 using Grpc.Core;
-using Scheduler;
+using System.Threading;
+using WorkerServer;
 
-namespace Worker
+namespace WorkerServer.Services
 {
+    internal struct BrokerRecord
+    {
+        public SendProbe Probe { get; }
+
+        public IServerStreamWriter<ResponseMessage> Writer { get; }
+
+        public BrokerRecord(SendProbe request, IServerStreamWriter<ResponseMessage> writer)
+        {
+            Probe = request;
+            Writer = writer;
+        }
+    }
     public class WorkerService : Worker.WorkerBase
     {
         // Can parallel run 2 requests at one time
         private static int _availableCoreNum = 2;
-        private static ConcurrentDictionary<string, string> _schedulers = new ConcurrentDictionary<string, string>();
-        private static readonly GrpcChannel Scheduler1 = GrpcChannel.ForAddress("https://localhost:50051");
-        private static readonly GrpcChannel Scheduler2 = GrpcChannel.ForAddress("https://localhost:50052");
-        private static readonly GrpcChannel Scheduler3 = GrpcChannel.ForAddress("https://localhost:50053");
+        private static ConcurrentDictionary<string, BrokerRecord> _brokers = new ConcurrentDictionary<string, BrokerRecord>();
+        private readonly Guid _nodeGuid = Guid.NewGuid();
 
-        private static readonly Dictionary<string, GrpcChannel> Channels = new Dictionary<string, GrpcChannel>()
-        {
-            {"https://localhost:50051", Scheduler1},
-            {"https://localhost:50052", Scheduler2},
-            {"https://localhost:50053", Scheduler3}
-        };
 
-        public override Task<Empty> SendProbe(ProbeRequest request, ServerCallContext context)
+        public override async Task Subscribe(IAsyncStreamReader<ActionMessage> requestStream, IServerStreamWriter<ResponseMessage> responseStream, ServerCallContext context)
         {
-            MakeReservation(request);
-            return Task.FromResult(new Empty { });
+            await HandleActions(requestStream, responseStream);
         }
 
-        public void MakeReservation(ProbeRequest request)
+        private async Task HandleActions(IAsyncStreamReader<ActionMessage> requestStream, IServerStreamWriter<ResponseMessage> responseStream)
         {
-            _schedulers.AddOrUpdate(request.Scheduler, request.Timestamp, (k, v) => request.Timestamp);
+            await foreach (var action in requestStream.ReadAllAsync())
+            {
+                switch (action.ActionCase)
+                {
+                    case ActionMessage.ActionOneofCase.None:
+                        Console.WriteLine(Logger.Info("No Action specified."));
+                        break;
+                    case ActionMessage.ActionOneofCase.Empty:
+                        Console.WriteLine(Logger.Info("No more request, empty action"));
+                        await ChangeBrokerAsync(action, responseStream);
+                        break;
+                    case ActionMessage.ActionOneofCase.Probe:
+                        Console.WriteLine(Logger.Info("Receive probe action."));
+                        await MakeReservationAsync(action, responseStream);
+                        break;
+                    case ActionMessage.ActionOneofCase.Request:
+                        Console.WriteLine(Logger.Info("Receive request action."));
+                        await ExecuteTaskAsync(action, responseStream);
+                        break;
+                    default:
+                        Console.WriteLine($"Unknown Action '{action.ActionCase}'.");
+                        break;
+                }
+            }
+        }
+
+        public async Task MakeReservationAsync(ActionMessage request, IServerStreamWriter<ResponseMessage> responseStream)
+        {
+            BrokerRecord updateRecord = new BrokerRecord(request.Probe, responseStream);
+            // use broker guid as probe id  
+            _brokers.AddOrUpdate(request.Probe.Id, updateRecord, (k, v) => updateRecord);
 
             if (_availableCoreNum > 0)
             {
-                int temp = _availableCoreNum;
+                var temp = _availableCoreNum;
                 _availableCoreNum = 0;
 
-                for (int i = 0; i < temp; i++)
+                for (var i = 0; i < temp; i++)
                 {
-                    string index = Logger.GetTimestamp();
-                    Task.Run(async () => await GetTaskAsync(request, index));
+                    // Send probe response to get task request
+                    await Task.Run(async () => await SendResponseAsync(request, responseStream));
                 }
             }
         }
 
-        public async Task GetTaskAsync(ProbeRequest request, string i)
+        private async Task ExecuteTaskAsync(ActionMessage request, IServerStreamWriter<ResponseMessage> responseStream)
         {
-            if (Channels.TryGetValue(request.Scheduler, out GrpcChannel channel))
+            await Task.Delay(1000);
+            await SendResponseAsync(request, responseStream);
+        }
+
+        private async Task ChangeBrokerAsync(ActionMessage action, IServerStreamWriter<ResponseMessage> responseStream)
+        {
+            if (action.ActionCase == ActionMessage.ActionOneofCase.Empty)
             {
-                var schedulerClient = new Scheduler.Scheduler.SchedulerClient(channel);
-                TaskRequest taskRequest = new TaskRequest {Node = request.Node, Scheduler = request.Scheduler};
-                var reply = await schedulerClient.GetTaskAsync(taskRequest);
-                // No more task need to be executed
-                if (reply.Id == -1)
+                // Empty.id is equal to Probe.id which are all broker guid value
+                if (_brokers.TryGetValue(action.Empty.Id, out BrokerRecord brokerRecord))
                 {
-                    // try to remove current scheduler from schedulers dic according to timestamp
-                    if (_schedulers.TryGetValue(request.Scheduler, out string requestTime))
-                    {
-                        long recordTime = Convert.ToInt64(requestTime);
-                        long queryTime = Convert.ToInt64(reply.Timestamp);
+                    long recordTime = Convert.ToInt64(brokerRecord.Probe.Timestamp);
+                    long queryTime = Convert.ToInt64(action.Empty.Timestamp);
 
-                        // only the time record in dics saller than the query task time, which means that no more probe arrive in current node,
-                        // then remove idle scheduler from dics
-                        if (recordTime < queryTime)
-                        {
-                            _schedulers.TryRemove(request.Scheduler, out string record);
-                        }
+                    // only the time record in dics smaller than the query task time, which means that no more probe arrives in during query time,
+                    // then remove empty brokers from dics
+                    if (recordTime < queryTime)
+                    {
+                        _brokers.TryRemove(action.Empty.Id, out var record);
+                        await record.Writer.WriteAsync(new ResponseMessage { Disconnect = new DisconnectResponse { Node = _nodeGuid.ToString() } });
                     }
+                }
 
-                    // try to change scheduler to acquire tasks
-                    if (_schedulers.Count > 0)
-                    {
-                        string scheduler = _schedulers.Take(1).Select(item => item.Key).First();
-                        await GetTaskAsync(new ProbeRequest {Node = request.Node, Scheduler = scheduler}, i);
-                    }
-                    else
-                    {
-                        // return core only no more task can be acquired from any scheduler
-                        _availableCoreNum++;
-                    }
+                // try to change broker to acquire tasks
+                if (_brokers.Count > 0)
+                {
+                    var broker = _brokers.Take(1).Select(item => item.Value).First();
+                    await SendResponseAsync(new ActionMessage { Probe = broker.Probe }, broker.Writer);
                 }
                 else
                 {
-                    await ExecuteTask(reply, schedulerClient, i);
+                    // return core only no more task can be acquired from any scheduler
+                    _availableCoreNum++;
                 }
             }
-        }
-
-        private async Task ExecuteTask(TaskReply reply, Scheduler.Scheduler.SchedulerClient client, string i)
-        {
-            await Task.Delay(1000);
-            await CompleteTask(reply, client, i);
-        }
-
-        private async Task CompleteTask(TaskReply reply, Scheduler.Scheduler.SchedulerClient client, string i)
-        {
-            HelloReply helloReply = new HelloReply
+            else
             {
-                Id = reply.Id, Message = "Task " + reply.Id + " executed in node " + reply.Node, Node = reply.Node,
-                Scheduler = reply.Scheduler
-            };
-            Console.WriteLine(Logger.GetTimestamp() + "Task " + reply.Id + " try to be completed");
-            await client.CompleteTaskAsync(helloReply);
-            await GetTaskAsync(new ProbeRequest {Node = reply.Node, Scheduler = reply.Scheduler}, i);
+                throw new Exception("Action type error in change broker");
+            }
+
+
+        }
+
+        private async Task SendResponseAsync(ActionMessage action, IServerStreamWriter<ResponseMessage> responseStream)
+        {
+            switch (action.ActionCase)
+            {
+                case ActionMessage.ActionOneofCase.None:
+                    Console.WriteLine("No Action specified.");
+                    break;
+                case ActionMessage.ActionOneofCase.Probe:
+                    // Probe response to get task request
+                    Console.WriteLine("Send probe response.");
+                    await responseStream.WriteAsync(new ResponseMessage { Probe = new ProbeResponse { Id = action.Probe.Id, Node = _nodeGuid.ToString() } });
+                    break;
+                case ActionMessage.ActionOneofCase.Request:
+                    // Send response with message
+                    Console.WriteLine("Send task request response.");
+                    await responseStream.WriteAsync(new ResponseMessage { Request = new RequestResponse { Id = action.Request.Id, Node = _nodeGuid.ToString(), Response = $"Task {action.Request.Id} executed in node {_nodeGuid}" } });
+                    break;
+                default:
+                    Console.WriteLine($"Unknown Action '{action.ActionCase}'.");
+                    break;
+            }
         }
     }
 }

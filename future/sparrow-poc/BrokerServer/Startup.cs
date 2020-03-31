@@ -1,14 +1,15 @@
-﻿// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT license
-
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using BrokerServer.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using WorkerServer.Services;
 
-namespace WorkerServer
+namespace BrokerServer
 {
     public class Startup
     {
@@ -31,7 +32,7 @@ namespace WorkerServer
 
             app.UseEndpoints(endpoints =>
             {
-                endpoints.MapGrpcService<WorkerService>();
+                endpoints.MapGrpcService<BrokerService>();
 
                 endpoints.MapGet("/", async context =>
                 {
