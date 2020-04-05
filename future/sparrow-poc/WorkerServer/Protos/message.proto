@@ -17,6 +17,12 @@ message ActionMessage {
 }
 
 message SendRequest {
+	repeated ClientRequest request = 1;
+	int32 number = 2;
+	string broker = 3;
+}
+
+message ClientRequest {
 	string id = 1;
 	string request = 2;
 }
@@ -24,32 +30,31 @@ message SendRequest {
 message SendProbe {
 	string id = 1;
 	string timestamp = 2;
+	string broker = 3;
 }
 
 message Empty {
 	string id = 1;
 	string timestamp = 2;
+	string broker = 3;
+	int32 core_number = 4;
 }
  
 message ResponseMessage {
 	oneof response {
 		ProbeResponse probe = 1; 
 		RequestResponse request = 2;
-		DisconnectResponse disconnect = 3;
 	}
 }
 
 message ProbeResponse {
 	string id = 1;
 	string node = 2;
+	int32 core_number = 3;
 }
 
 message RequestResponse {
 	string id = 1;
 	string node = 2;
 	string response = 3;
-}
-
-message DisconnectResponse {
-	string node = 1;
 }

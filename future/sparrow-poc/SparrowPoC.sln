@@ -9,13 +9,14 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LogHelper", "LogHelper\LogH
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{5BF1857C-FED2-4474-BEEC-4D23BF866260}"
 	ProjectSection(SolutionItems) = preProject
+		generate-certs.bat = generate-certs.bat
 		README.md = README.md
 		start.ps1 = start.ps1
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BrokerServer", "BrokerServer\BrokerServer.csproj", "{235BACC7-68F4-47AE-AAB2-348D6B8E90C7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BrokerServer", "BrokerServer\BrokerServer.csproj", "{235BACC7-68F4-47AE-AAB2-348D6B8E90C7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BrokerClient", "BrokerClient\BrokerClient.csproj", "{ECB520E4-243D-42A8-AA89-42C05B1AFED1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BrokerClient", "BrokerClient\BrokerClient.csproj", "{ECB520E4-243D-42A8-AA89-42C05B1AFED1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

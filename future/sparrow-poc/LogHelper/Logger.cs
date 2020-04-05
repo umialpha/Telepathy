@@ -13,7 +13,7 @@ namespace LogHelper
             return "[" + DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss.fff", CultureInfo.InvariantCulture) + "]";
         }
 
-        public static string Info(string message)
+        public static string Format(string message)
         {
             return $"{GetTimestamp()} {message}";
         }

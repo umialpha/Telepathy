@@ -6,13 +6,14 @@ package brokerserver;
 
 // The greeting service definition.
 service Broker {
-    // Sends a greeting
-    rpc Start (stream TaskRequest) returns (stream TaskReply);
+	// Sends a greeting
+	rpc Start (stream TaskRequest) returns (stream TaskReply);
+	rpc Initialize (InitializeRequest) returns (InitializeResponse);
 }
 
 // The request message containing the user's name.
 message TaskRequest {
-    string id = 1;
+	string id = 1;
 	string request = 2;
 }
 
@@ -23,3 +24,10 @@ message TaskReply {
 	string message = 3;
 }
 
+message InitializeRequest {
+	string client_id = 1;
+}
+
+message InitializeResponse {
+	string result = 1;
+}

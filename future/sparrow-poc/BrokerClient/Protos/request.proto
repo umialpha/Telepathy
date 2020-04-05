@@ -8,6 +8,7 @@ package brokerserver;
 service Broker {
 	// Sends a greeting
 	rpc Start (stream TaskRequest) returns (stream TaskReply);
+	rpc Initialize (InitializeRequest) returns (InitializeResponse);
 }
 
 // The request message containing the user's name.
@@ -21,4 +22,12 @@ message TaskReply {
 	string id = 1;
 	string node = 2;
 	string message = 3;
+}
+
+message InitializeRequest {
+	string client_id = 1;
+}
+
+message InitializeResponse {
+	string result = 1;
 }

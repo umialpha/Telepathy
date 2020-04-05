@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 
 namespace WorkerServer
 {
@@ -23,11 +24,12 @@ namespace WorkerServer
         // For instructions on how to configure Kestrel and gRPC clients on macOS, visit https://go.microsoft.com/fwlink/?linkid=2099682
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
+                .ConfigureLogging(logging => logging.AddConsole())
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     if (args.Length > 0)
                     {
-                        webBuilder.UseUrls("https://127.0.0.1:" + args[0] + "/");
+                        webBuilder.UseUrls("https://localhost:" + args[0] + "/");
                     }                  
                     webBuilder.UseStartup<Startup>();
                 });
