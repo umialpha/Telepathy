@@ -7,7 +7,9 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Net.Http;
 using System.Runtime.CompilerServices;
+using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 using System.Threading.Tasks;
 using LogHelper;
@@ -16,17 +18,27 @@ namespace BrokerClient
 {
     class Program
     {
-        private static readonly GrpcChannel[] Channels = new GrpcChannel[]
+        private static readonly GrpcChannel Channel = GrpcChannel.ForAddress("https://10.3.0.19:50051",
+            new GrpcChannelOptions
+            {
+                HttpClient = CreateHttpClient()
+            });
+
+        private static HttpClient CreateHttpClient()
         {
-            GrpcChannel.ForAddress("https://localhost:50051"), GrpcChannel.ForAddress("https://localhost:50052"),
-            GrpcChannel.ForAddress("https://localhost:50053")
-        };
+            var handler = new HttpClientHandler();
+            handler.ServerCertificateCustomValidationCallback =
+                HttpClientHandler.DangerousAcceptAnyServerCertificateValidator;
+            var cert = new X509Certificate2("C:\\Users\\jingjli\\github\\Telepathy\\future\\sparrow-poc\\certs-test\\client.pfx", "1234");
+            handler.ClientCertificates.Add(cert);
+            return new HttpClient(handler);
+        }
 
         private static List<AsyncDuplexStreamingCall<TaskRequest, TaskReply>> _duplexStreams =
             new List<AsyncDuplexStreamingCall<TaskRequest, TaskReply>>();
 
         private static List<Task> responseTasks = new List<Task>();
-        private static List<Broker.BrokerClient> clients = new List<Broker.BrokerClient>();
+        private static Broker.BrokerClient client = null;
         private static ConcurrentBag<TaskReply> replies = new ConcurrentBag<TaskReply>();
         private const int TaskNum = 5000;
         private const int EstimateTaskExecuteTime = 1000;
@@ -36,64 +48,61 @@ namespace BrokerClient
         private static bool InitializeBrokers()
         {
             bool result = true;
-            for (var i = 0; i < Channels.Length; i++)
+            client = new Broker.BrokerClient(Channel);
+
+            try
             {
-                var client = new Broker.BrokerClient(Channels[i]);
-                clients.Add(client);
-                try
+                Console.WriteLine($"Start to initialize broker {Channel}");
+                var initializeResult = client.Initialize(new InitializeRequest { ClientId = ClientGuid });
+                if (!string.Equals(initializeResult.Result, "success"))
                 {
-                    Console.WriteLine($"Start to initialize broker {Channels[i]}");
-                    var initializeResult = client.Initialize(new InitializeRequest { ClientId = ClientGuid });
-                    if (!string.Equals(initializeResult.Result, "success"))
-                    {
-                        Console.WriteLine($"Failed in initialize broker: {initializeResult.Result}");
-                        result = false;
-                    }
-                    else
-                    {
-                        Console.WriteLine($"Succeed in initialize broker.");
-                    }
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine($"Error in initialize broker: {e.Message}");
+                    Console.WriteLine($"Failed in initialize broker: {initializeResult.Result}");
                     result = false;
                 }
+                else
+                {
+                    Console.WriteLine($"Succeed in initialize broker.");
+                }
             }
+            catch (Exception e)
+            {
+                Console.WriteLine($"Error in initialize broker: {e.Message}");
+                result = false;
+            }
+
             return result;
         }
 
         private static void ConstructDuplexStream()
         {
-            foreach (var client in clients)
+
+            var duplexStream = client.Start();
+            _duplexStreams.Add(duplexStream);
+            responseTasks.Add(Task.Run(async () =>
             {
-                var duplexStream = client.Start();
-                _duplexStreams.Add(duplexStream);
-                responseTasks.Add(Task.Run(async () =>
+                try
                 {
-                    try
+                    await foreach (var response in duplexStream.ResponseStream.ReadAllAsync())
                     {
-                        await foreach (var response in duplexStream.ResponseStream.ReadAllAsync())
+                        replies.Add(response);
+                        Console.WriteLine(Logger.Format($"{response.Message}, current replies count is {replies.Count}"));
+                        if (replies.Count == TaskNum)
                         {
-                            replies.Add(response);
-                            Console.WriteLine(Logger.Format($"{response.Message}, current replies count is {replies.Count}"));
-                            if (replies.Count == TaskNum)
-                            {
-                                Console.WriteLine(Logger.Format($"Wait for request stream complete..."));
-                                DestructDuplexStream();
-                            }
+                            Console.WriteLine(Logger.Format($"Wait for request stream complete..."));
+                            DestructDuplexStream();
                         }
                     }
-                    catch (RpcException e)
-                    {
-                        Console.WriteLine(Logger.Format($"RpcError in HandleResponseStream from Brokers {e.Message}"));
-                    }
-                    catch (OperationCanceledException e)
-                    {
-                        Console.WriteLine(Logger.Format($"OperationCanceledException in HandleResponseStream from Brokers {e.Message}"));
-                    }
-                }));
-            }
+                }
+                catch (RpcException e)
+                {
+                    Console.WriteLine(Logger.Format($"RpcError in HandleResponseStream from Brokers {e.Message}"));
+                }
+                catch (OperationCanceledException e)
+                {
+                    Console.WriteLine(Logger.Format($"OperationCanceledException in HandleResponseStream from Brokers {e.Message}"));
+                }
+            }));
+
         }
 
         private static async void DestructDuplexStream()
@@ -103,11 +112,7 @@ namespace BrokerClient
                 await stream.RequestStream.CompleteAsync().ConfigureAwait(false);
                 stream.Dispose();
             }
-
-            foreach (var channel in Channels)
-            {
-                await channel.ShutdownAsync();
-            }
+            await Channel.ShutdownAsync();
         }
 
         public static int GetRandomNum(int max)

@@ -4,6 +4,8 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Net.Http;
+using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 using System.Threading.Tasks;
 using Google.Protobuf.Collections;
@@ -19,10 +21,38 @@ namespace BrokerServer.Services
     {
         private static readonly GrpcChannel[] Channels = new GrpcChannel[]
         {
-            GrpcChannel.ForAddress("https://localhost:50054"), GrpcChannel.ForAddress("https://localhost:50055"),
-            GrpcChannel.ForAddress("https://localhost:50056"), GrpcChannel.ForAddress("https://localhost:50057"),
-            GrpcChannel.ForAddress("https://localhost:50058")
+            GrpcChannel.ForAddress("https://10.240.0.8:50051", new GrpcChannelOptions
+            {
+                HttpClient = CreateHttpClient()
+            }),
+            GrpcChannel.ForAddress("https://10.240.0.9:50051", new GrpcChannelOptions
+            {
+                HttpClient = CreateHttpClient()
+            }),
+            GrpcChannel.ForAddress("https://10.240.0.11:50051", new GrpcChannelOptions
+            {
+                HttpClient = CreateHttpClient()
+            }),
+            GrpcChannel.ForAddress("https://10.240.0.12:50051", new GrpcChannelOptions
+            {
+                HttpClient = CreateHttpClient()
+            }),
+            GrpcChannel.ForAddress("https://10.240.0.13:50051", new GrpcChannelOptions
+            {
+                HttpClient = CreateHttpClient()
+            })
         };
+
+        private static HttpClient CreateHttpClient()
+        {
+            var handler = new HttpClientHandler();
+            handler.ServerCertificateCustomValidationCallback =
+                HttpClientHandler.DangerousAcceptAnyServerCertificateValidator;
+            var cert = new X509Certificate2("client.pfx", "1234");
+            handler.ClientCertificates.Add(cert);
+            return new HttpClient(handler);
+        }
+
 
         private static readonly string BrokerGuid = Guid.NewGuid().ToString();
 

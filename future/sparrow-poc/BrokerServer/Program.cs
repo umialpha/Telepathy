@@ -22,13 +22,22 @@ namespace BrokerServer
         // For instructions on how to configure Kestrel and gRPC clients on macOS, visit https://go.microsoft.com/fwlink/?linkid=2099682
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
-                .ConfigureLogging(logging => { logging.AddConsole(); })
+                .ConfigureLogging(logging =>
+                {
+                    logging.AddConsole();
+                })
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
-                    if (args.Length > 0)
+                    webBuilder.UseUrls("https://0.0.0.0:50051");
+                    webBuilder.ConfigureKestrel(options =>
                     {
-                        webBuilder.UseUrls("https://localhost:" + args[0] + "/");
-                    }
+                        options.Listen(IPAddress.Any, 50051, listenOptions =>
+                        {
+                            listenOptions.Protocols = HttpProtocols.Http2;
+                            listenOptions.UseHttps("server.pfx",
+                                "1234");
+                        });
+                    });
                     webBuilder.UseStartup<Startup>();
                 });
     }
