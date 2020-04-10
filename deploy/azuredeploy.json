@@ -13,6 +13,24 @@
         "Premium_LRS"
       ]
     },
+    "newOrExistingBatchAccount": {
+      "type": "string",
+      "defaultValue": "new",
+      "allowedValues": [
+        "new",
+        "existing"
+      ],
+      "metadata": {
+        "description": "New or using existing BatchAccount, existing BatchAccount must be in the same location"
+      }
+    },
+    "batchAccountsResourceGroup": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().name]",
+      "metadata": {
+        "description": "Batch Account Resource Group"
+      }
+    },
     "batchAccountsName": {
       "type": "string",
       "defaultValue": "[concat(toLower(uniqueString(resourceGroup().id)), 'batch')]",
@@ -113,6 +131,7 @@
   },
   "resources": [
     {
+      "condition": "[equals(parameters('newOrExistingBatchAccount'), 'new')]",
       "type": "Microsoft.Batch/batchAccounts",
       "apiVersion": "2019-08-01",
       "name": "[parameters('batchAccountsName')]",
@@ -122,6 +141,7 @@
       }
     },
     {
+      "condition": "[equals(parameters('newOrExistingBatchAccount'), 'new')]",
       "type": "Microsoft.Batch/batchAccounts/pools",
       "apiVersion": "2019-08-01",
       "name": "[concat(parameters('batchAccountsName'), '/', parameters('batchAccountsPoolName'))]",
@@ -169,7 +189,8 @@
       "sku": {
         "name": "[parameters('telepathyStorageType')]"
       },
-      "dependsOn": [],
+      "dependsOn": [
+      ],
       "tags": {
         "displayName": "telepathyStorage"
       },
@@ -181,7 +202,8 @@
       "type": "Microsoft.Network/virtualNetworks",
       "location": "[resourceGroup().location]",
       "apiVersion": "2019-09-01",
-      "dependsOn": [],
+      "dependsOn": [
+      ],
       "tags": {
         "displayName": "telepathyVnet"
       },
@@ -262,7 +284,7 @@
     },
     "batchAccountKey": {
       "type": "string",
-      "value": "[listKeys(resourceId('Microsoft.Batch/batchAccounts', parameters('batchAccountsName')), '2017-09-01').primary]"
+      "value": "[listKeys(resourceId(parameters('batchAccountsResourceGroup'), 'Microsoft.Batch/batchAccounts', parameters('batchAccountsName')), '2017-09-01').primary]"
     },
     "networkInterfaceId": {
       "type": "string",

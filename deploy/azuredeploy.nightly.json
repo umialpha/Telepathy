@@ -45,6 +45,24 @@
                 "2016-Datacenter-Server-Core"
             ]
         },
+        "newOrExistingBatchAccount": {
+            "type": "string",
+            "defaultValue": "new",
+            "allowedValues": [
+                "new",
+                "existing"
+            ],
+            "metadata": {
+                "description": "New or using existing BatchAccount, existing BatchAccount must be in the same location"
+            }
+        },
+        "batchAccountsResourceGroup": {
+            "type": "string",
+            "defaultValue": "[resourceGroup().name]",
+            "metadata": {
+                "description": "Batch Account Resource Group"
+            }
+        },
         "batchAccountsName": {
             "type": "string",
             "defaultValue": "[concat(toLower(uniqueString(resourceGroup().id)), 'batch')]",
@@ -182,6 +200,12 @@
                     "telepathyStorageType": {
                         "value": "[parameters('telepathyStorageType')]"
                     },
+                    "newOrExistingBatchAccount": {
+                        "value": "[parameters('newOrExistingBatchAccount')]"
+                    },
+                    "batchAccountsResourceGroup": {
+                        "value": "[parameters('batchAccountsResourceGroup')]"
+                    },
                     "batchAccountsName": {
                         "value": "[parameters('batchAccountsName')]"
                     },
@@ -304,5 +328,6 @@
             ]
         }
     ],
-    "outputs": {}
+    "outputs": {
+    }
 }
