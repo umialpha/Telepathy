@@ -203,7 +203,7 @@
                     "newOrExistingBatchAccount": {
                         "value": "[parameters('newOrExistingBatchAccount')]"
                     },
-                    "batchAccountGroupResource": {
+                    "batchAccountsResourceGroup": {
                         "value": "[parameters('batchAccountsResourceGroup')]"
                     },
                     "batchAccountsName": {
