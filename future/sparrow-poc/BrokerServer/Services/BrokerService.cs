@@ -21,23 +21,23 @@ namespace BrokerServer.Services
     {
         private static readonly GrpcChannel[] Channels = new GrpcChannel[]
         {
-            GrpcChannel.ForAddress("https://10.240.0.8:50051", new GrpcChannelOptions
+            GrpcChannel.ForAddress("https://10.240.0.10:50051", new GrpcChannelOptions
             {
                 HttpClient = CreateHttpClient()
             }),
-            GrpcChannel.ForAddress("https://10.240.0.9:50051", new GrpcChannelOptions
+            GrpcChannel.ForAddress("https://10.240.0.14:50051", new GrpcChannelOptions
             {
                 HttpClient = CreateHttpClient()
             }),
-            GrpcChannel.ForAddress("https://10.240.0.11:50051", new GrpcChannelOptions
+            GrpcChannel.ForAddress("https://10.240.0.17:50051", new GrpcChannelOptions
             {
                 HttpClient = CreateHttpClient()
             }),
-            GrpcChannel.ForAddress("https://10.240.0.12:50051", new GrpcChannelOptions
+            GrpcChannel.ForAddress("https://10.240.0.16:50051", new GrpcChannelOptions
             {
                 HttpClient = CreateHttpClient()
             }),
-            GrpcChannel.ForAddress("https://10.240.0.13:50051", new GrpcChannelOptions
+            GrpcChannel.ForAddress("https://10.240.0.19:50051", new GrpcChannelOptions
             {
                 HttpClient = CreateHttpClient()
             })

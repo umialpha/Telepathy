@@ -1,11 +1,5 @@
-# Stage 1
-FROM mcr.microsoft.com/dotnet/core/sdk:3.1 AS build
-WORKDIR /build
-COPY . .
-RUN dotnet restore
-RUN dotnet publish -c Release -o /app
-# Stage 2
-FROM mcr.microsoft.com/dotnet/core/aspnet:3.1 AS final
+# run dotnet publish -c release -o published first
+FROM mcr.microsoft.com/dotnet/core/aspnet:3.1 AS runtime
 WORKDIR /app
-COPY --from=build /app .
+COPY published/ ./
 ENTRYPOINT ["dotnet", "BrokerServer.dll"]

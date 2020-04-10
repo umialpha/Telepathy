@@ -1,0 +1,43 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: telepathy
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: broker
+  namespace: telepathy
+  labels:
+    run: broker
+spec:
+  ports:
+    - port: 50051
+      targetPort: 50051
+  selector:
+    run: broker
+  sessionAffinity: None
+  type: LoadBalancer
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: broker
+  namespace: telepathy
+spec:
+  selector:
+    matchLabels:
+      run: broker
+  replicas: 3
+  template:
+    metadata:
+      labels:
+        run: broker
+    spec:
+      containers:
+        - name: broker
+          image: telepathy.azurecr.io/telepathy/broker:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 50051
+      restartPolicy: Always

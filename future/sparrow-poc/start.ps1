@@ -1,8 +1,8 @@
 ﻿Set-Location -Path C:\Users\jingjli\github\Telepathy\future\sparrow-poc
-Start-Process cmd.exe -ArgumentList "/K dotnet run -p BrokerServer"
+#Start-Process cmd.exe -ArgumentList "/K dotnet run -p BrokerServer"
 #Start-Process cmd.exe -ArgumentList "/K dotnet run -p WorkerServer"
 
-Start-Sleep -s 5
+#Start-Sleep -s 5
 
 $max_iterations = 1;
 

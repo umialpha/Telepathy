@@ -18,7 +18,7 @@ namespace BrokerClient
 {
     class Program
     {
-        private static readonly GrpcChannel Channel = GrpcChannel.ForAddress("https://10.3.0.19:50051",
+        private static readonly GrpcChannel Channel = GrpcChannel.ForAddress("https://52.140.235.18:50051",
             new GrpcChannelOptions
             {
                 HttpClient = CreateHttpClient()
@@ -34,13 +34,10 @@ namespace BrokerClient
             return new HttpClient(handler);
         }
 
-        private static List<AsyncDuplexStreamingCall<TaskRequest, TaskReply>> _duplexStreams =
-            new List<AsyncDuplexStreamingCall<TaskRequest, TaskReply>>();
-
         private static List<Task> responseTasks = new List<Task>();
         private static Broker.BrokerClient client = null;
         private static ConcurrentBag<TaskReply> replies = new ConcurrentBag<TaskReply>();
-        private const int TaskNum = 5000;
+        private const int TaskNum = 500;
         private const int EstimateTaskExecuteTime = 1000;
         private const int TotalCoreNum = 10;
         private static readonly string ClientGuid = Guid.NewGuid().ToString();
@@ -73,11 +70,10 @@ namespace BrokerClient
             return result;
         }
 
-        private static void ConstructDuplexStream()
+        private static AsyncDuplexStreamingCall<TaskRequest, TaskReply> ConstructDuplexStream()
         {
 
             var duplexStream = client.Start();
-            _duplexStreams.Add(duplexStream);
             responseTasks.Add(Task.Run(async () =>
             {
                 try
@@ -89,7 +85,7 @@ namespace BrokerClient
                         if (replies.Count == TaskNum)
                         {
                             Console.WriteLine(Logger.Format($"Wait for request stream complete..."));
-                            DestructDuplexStream();
+                            DestructDuplexStream(duplexStream);
                         }
                     }
                 }
@@ -103,15 +99,15 @@ namespace BrokerClient
                 }
             }));
 
+            return duplexStream;
         }
 
-        private static async void DestructDuplexStream()
+        private static async void DestructDuplexStream(AsyncDuplexStreamingCall<TaskRequest, TaskReply> stream)
         {
-            foreach (var stream in _duplexStreams)
-            {
-                await stream.RequestStream.CompleteAsync().ConfigureAwait(false);
-                stream.Dispose();
-            }
+
+            await stream.RequestStream.CompleteAsync().ConfigureAwait(false);
+            stream.Dispose();
+
             await Channel.ShutdownAsync();
         }
 
@@ -125,17 +121,15 @@ namespace BrokerClient
         {
             if (InitializeBrokers())
             {
-                ConstructDuplexStream();
+                var duplexStream = ConstructDuplexStream();
                 Console.WriteLine(Logger.Format("Start to send requests"));
                 Stopwatch stopwatch = Stopwatch.StartNew();
                 for (int i = 0; i < TaskNum; i++)
                 {
-
-                    int num = GetRandomNum(3);
                     try
                     {
-                        Console.WriteLine(Logger.Format($"Send request {i} to DuplexStream {num}"));
-                        await _duplexStreams[num].RequestStream.WriteAsync(new TaskRequest
+                        Console.WriteLine(Logger.Format($"Send request {i} to DuplexStream "));
+                        await duplexStream.RequestStream.WriteAsync(new TaskRequest
                         { Id = i.ToString(), Request = $"request content for request {i}" });
                     }
                     catch (Exception e)
@@ -150,7 +144,7 @@ namespace BrokerClient
                     Console.WriteLine(Logger.Format("All requests finish !"));
                     stopwatch.Stop();
                     StreamWriter file =
-                        new StreamWriter(@"C:\Users\jingjli\github\Telepathy\future\sparrow-poc\TestFolder\result-5000.txt",
+                        new StreamWriter(@"C:\Users\jingjli\github\Telepathy\future\sparrow-poc\TestFolder\result-500.txt",
                             true);
                     file.WriteLine("*******************Start******************");
                     Dictionary<string, int> result = new Dictionary<string, int>();
@@ -184,7 +178,7 @@ namespace BrokerClient
                     file.Flush();
                     file.Close();
 
-                    DestructDuplexStream();
+                    DestructDuplexStream(duplexStream);
                 });
             }
             else

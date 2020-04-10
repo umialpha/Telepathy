@@ -29,10 +29,10 @@ namespace WorkerServer
                 .ConfigureLogging(logging => logging.AddConsole())
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
-                    webBuilder.UseUrls("https://0.0.0.0:50054");
+                    webBuilder.UseUrls("https://0.0.0.0:50051");
                     webBuilder.ConfigureKestrel(options =>
                     {
-                        options.Listen(IPAddress.Any, 50054, listenOptions =>
+                        options.Listen(IPAddress.Any, 50051, listenOptions =>
                         {
                             listenOptions.Protocols = HttpProtocols.Http2;
                             listenOptions.UseHttps("server.pfx",
