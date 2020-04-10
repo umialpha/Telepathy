@@ -200,6 +200,12 @@
                     "telepathyStorageType": {
                         "value": "[parameters('telepathyStorageType')]"
                     },
+                    "newOrExistingBatchAccount": {
+                        "value": "[parameters('newOrExistingBatchAccount')]"
+                    },
+                    "batchAccountGroupResource": {
+                        "value": "[parameters('batchAccountsResourceGroup')]"
+                    },
                     "batchAccountsName": {
                         "value": "[parameters('batchAccountsName')]"
                     },
