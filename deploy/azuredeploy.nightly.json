@@ -56,6 +56,13 @@
                 "description": "New or using existing BatchAccount, existing BatchAccount must be in the same location"
             }
         },
+        "batchAccountsResourceGroup": {
+            "type": "string",
+            "defaultValue": "[resourceGroup().name]",
+            "metadata": {
+                "description": "Batch Account Resource Group"
+            }
+        },
         "batchAccountsName": {
             "type": "string",
             "defaultValue": "[concat(toLower(uniqueString(resourceGroup().id)), 'batch')]",

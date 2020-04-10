@@ -24,6 +24,13 @@
         "description": "New or using existing BatchAccount, existing BatchAccount must be in the same location"
       }
     },
+    "batchAccountsResourceGroup": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().name]",
+      "metadata": {
+        "description": "Batch Account Resource Group"
+      }
+    },
     "batchAccountsName": {
       "type": "string",
       "defaultValue": "[concat(toLower(uniqueString(resourceGroup().id)), 'batch')]",
@@ -277,7 +284,7 @@
     },
     "batchAccountKey": {
       "type": "string",
-      "value": "[listKeys(resourceId('Microsoft.Batch/batchAccounts', parameters('batchAccountsName')), '2017-09-01').primary]"
+      "value": "[listKeys(resourceId(parameters('batchAccountsResourceGroup'), 'Microsoft.Batch/batchAccounts', parameters('batchAccountsName')), '2017-09-01').primary]"
     },
     "networkInterfaceId": {
       "type": "string",
