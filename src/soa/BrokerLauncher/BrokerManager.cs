@@ -1,6 +1,8 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
+using IdentityModel;
+
 namespace Microsoft.Telepathy.Internal.BrokerLauncher
 {
     using System;
@@ -26,6 +28,7 @@ namespace Microsoft.Telepathy.Internal.BrokerLauncher
     using Microsoft.Telepathy.Session.Exceptions;
     using Microsoft.Telepathy.Session.Interface;
     using Microsoft.Telepathy.Session.Internal;
+    using System.Security.Claims;
 
     /// <summary>
     /// Manager for all broker app domains
@@ -676,7 +679,10 @@ namespace Microsoft.Telepathy.Internal.BrokerLauncher
 #if HPCPACK
             brokerInfo.JobOwnerSID = await this.schedulerHelper.GetJobOwnerSID(brokerInfo.SessionId);
 #endif
-
+            if (recoverInfo.StartInfo.UseIds)
+            {
+                brokerInfo.JobOwnerSID = ClaimsPrincipal.Current.FindFirst(JwtClaimTypes.Subject).Value;
+            }
             brokerInfo.Durable = recoverInfo.Durable;
             brokerInfo.Attached = attached;
             //this is scheduler node or cluster connection string
@@ -807,7 +813,7 @@ namespace Microsoft.Telepathy.Internal.BrokerLauncher
                 }
                 else
                 {
-                    auth = new BrokerAuthorization(new SecurityIdentifier(brokerInfo.JobOwnerSID));
+                    auth = new BrokerAuthorization(brokerInfo.JobOwnerSID);
                 }
             }
 

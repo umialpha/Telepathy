@@ -52,6 +52,7 @@ namespace Microsoft.Telepathy.EchoClient
         private const string UseWindowsClientCredentialArg = "useWCC";
         private const string UseAadArg = "useAad";
         private const string TargetListArg = "targetList";
+        private const string UseIdsArg = "useIds";
 
         private bool helpInfo = false;
         public bool HelpInfo
@@ -265,6 +266,8 @@ namespace Microsoft.Telepathy.EchoClient
         }
         public bool UseAad { get; private set; } = false;
 
+        public bool UseIds { get; private set; } = false;
+
         private List<string> targetList = null;
         public List<string> TargetList
         {
@@ -316,6 +319,7 @@ namespace Microsoft.Telepathy.EchoClient
             this.verbose = parser.GetSwitch(VerboseArg);
             this.useWCC = parser.GetSwitch(UseWindowsClientCredentialArg);
             this.UseAad = parser.GetSwitch(UseAadArg);
+            this.UseIds = parser.GetSwitch(UseIdsArg);
         }
 
         public void PrintHelp()

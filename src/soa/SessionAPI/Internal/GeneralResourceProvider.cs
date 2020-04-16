@@ -13,6 +13,7 @@ namespace Microsoft.Telepathy.Session.Internal
     using Microsoft.Telepathy.Session.Common;
     using Microsoft.Telepathy.Session.Exceptions;
     using Microsoft.Telepathy.Session.Interface;
+    using IdentityUtil;
 
     public class GeneralResourceProvider : IResourceProvider, IDisposable
     {
@@ -47,6 +48,11 @@ namespace Microsoft.Telepathy.Session.Internal
             }
 
             this.client = new SessionLauncherClient(info, binding);
+
+            if (info.UseIds)
+            {
+                this.client.Endpoint.Behaviors.Add(new IdentityServiceEndpointBehavior(IdentityUtil.GetJwtTokenFromROAsync(IdentityUtil.IdentityServerUrl, "ro.client", "secret", "bob", "bob", "SessionLauncher").GetAwaiter().GetResult()));
+            }
         }
 
         public GeneralResourceProvider(SessionAttachInfo info, Binding binding)
@@ -71,6 +77,11 @@ namespace Microsoft.Telepathy.Session.Internal
             }
 
             this.client = new SessionLauncherClient(info, binding);
+
+            if (info.UseIds)
+            {
+                this.client.Endpoint.Behaviors.Add(new IdentityServiceEndpointBehavior(IdentityUtil.GetJwtTokenFromROAsync(IdentityUtil.IdentityServerUrl, "ro.client", "secret", "bob", "bob", "SessionLauncher").GetAwaiter().GetResult()));
+            }
         }
 
         public async Task<SessionAllocateInfoContract> AllocateResource(SessionStartInfo startInfo, bool durable, TimeSpan timeout)
@@ -89,6 +100,17 @@ namespace Microsoft.Telepathy.Session.Internal
                     async () => await this.client.AllocateDurableAsync(startInfo.Data, this.endpointPrefix).ConfigureAwait(false),
                     (e, r) =>
                     {
+                        if (e is FaultException)
+                        {
+                            IdentityMessageFault faultDetail = ((FaultException) e).CreateMessageFault()
+                                .GetDetail<IdentityMessageFault>();
+                            Console.WriteLine("Input username, password.");
+                            string username = Console.ReadLine();
+                            string password = Console.ReadLine();
+                            this.client.Endpoint.Behaviors.AddBehaviorFromEx(faultDetail, username, password).GetAwaiter().GetResult();
+                            return Task.CompletedTask;
+                        }
+
                         var remainingTime = GetRemainingTime(timeout, startTime);
                         if ((e is EndpointNotFoundException || (e is CommunicationException && !(e is FaultException<SessionFault>))) && remainingTime > TimeSpan.Zero)
                         {
@@ -111,11 +133,23 @@ namespace Microsoft.Telepathy.Session.Internal
                     (e, r) =>
                     {
                         var remainingTime = GetRemainingTime(timeout, startTime);
-                        if ((e is EndpointNotFoundException || (e is CommunicationException && !(e is FaultException<SessionFault>))) && remainingTime > TimeSpan.Zero)
+                        if (remainingTime > TimeSpan.Zero)
                         {
-                            Utility.SafeCloseCommunicateObject(this.client);
-                            this.client = new SessionLauncherClient(startInfo, this.binding);
-                            this.client.InnerChannel.OperationTimeout = remainingTime;
+                            if (e is FaultException)
+                            {
+                                IdentityMessageFault faultDetail = ((FaultException)e).CreateMessageFault()
+                                    .GetDetail<IdentityMessageFault>();
+                                Console.WriteLine("Input username, password1.");
+                                string username = Console.ReadLine();
+                                string password = Console.ReadLine();
+                                this.client.Endpoint.Behaviors.AddBehaviorFromEx(faultDetail, username, password).GetAwaiter().GetResult();
+                            }
+                            else if ((e is EndpointNotFoundException || (e is CommunicationException && !(e is FaultException<SessionFault>))))
+                            {
+                                Utility.SafeCloseCommunicateObject(this.client);
+                                this.client = new SessionLauncherClient(startInfo, this.binding);
+                                this.client.InnerChannel.OperationTimeout = remainingTime;
+                            }
                         }
                         else
                         {

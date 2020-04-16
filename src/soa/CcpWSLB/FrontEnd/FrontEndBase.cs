@@ -16,6 +16,7 @@ namespace Microsoft.Telepathy.ServiceBroker.FrontEnd
     using Microsoft.Telepathy.Session;
     using Microsoft.Telepathy.Session.Interface;
     using Microsoft.Telepathy.Session.Internal;
+    using IdentityUtil;
 
     /// <summary>
     /// Base class for all frontends
@@ -87,6 +88,7 @@ namespace Microsoft.Telepathy.ServiceBroker.FrontEnd
         /// </summary>
         private SharedData sharedData;
 
+        private Lazy<IdentityServiceAuthManager> identityAuthorizationManager = new Lazy<IdentityServiceAuthManager>(() => new IdentityServiceAuthManager(null, IdentityUtil.IdentityServerUrl, "SessionLauncher"));
         /// <summary>
         /// Initializes a new instance of the FrontEndBase class
         /// </summary>
@@ -283,6 +285,11 @@ namespace Microsoft.Telepathy.ServiceBroker.FrontEnd
         /// <returns>the message passes the check or not</returns>
         protected bool CheckAuth(RequestContextBase request, Message message)
         {
+            if (this.CheckIdentityMsgHeaderAndSetPrincipal(message))
+            {
+                return true;
+            }
+
             ServiceSecurityContext context = GetSecurityContextFromRequest(message);
             if (this.brokerAuth != null && !this.brokerAuth.CheckAccess(context))
             {
@@ -293,6 +300,20 @@ namespace Microsoft.Telepathy.ServiceBroker.FrontEnd
             }
 
             return true;
+        }
+
+        protected bool CheckIdentityMsgHeaderAndSetPrincipal(Message message)
+        {
+            var header = AuthMessageHeader.ReadHeader(message);
+            if (header != null)
+            {
+                if (this.identityAuthorizationManager.Value.CheckHeaderAccess(header))
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         /// <summary>

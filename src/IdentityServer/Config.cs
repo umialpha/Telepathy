@@ -38,6 +38,23 @@ namespace IdentityServer
                     {
                         "SessionLauncher"
                     }
+                },
+                new Client
+                {
+                    ClientId = "client",
+
+                    AllowedGrantTypes = GrantTypes.ClientCredentials,
+
+                    ClientSecrets =
+                    {
+                        new Secret("secret".Sha256())
+                    },
+
+                    // scopes that client has access to
+                    AllowedScopes =
+                    {
+                        "SessionLauncher"
+                    }
                 }
             };
         

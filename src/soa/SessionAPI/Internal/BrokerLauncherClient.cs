@@ -6,7 +6,7 @@ namespace Microsoft.Telepathy.Session.Internal
     using System;
     using System.ServiceModel;
     using System.ServiceModel.Channels;
-
+    using IdentityUtil;
     using Microsoft.Telepathy.Session.Common;
     using Microsoft.Telepathy.Session.Interface;
 
@@ -35,6 +35,10 @@ namespace Microsoft.Telepathy.Session.Internal
 
         private void InitAzureOrAadOrCertAuth(IConnectionInfo info, string username, string password)
         {
+            if (info.UseIds)
+            { 
+                this.Endpoint.Behaviors.Add(new IdentityServiceEndpointBehavior(IdentityUtil.GetJwtTokenFromROAsync(IdentityUtil.IdentityServerUrl, "ro.client", "secret", "bob", "bob", "SessionLauncher").GetAwaiter().GetResult()));
+            }
 #if HPCPACK
             if (!SoaHelper.IsOnAzure() && !info.UseAad)
             {

@@ -21,6 +21,7 @@ namespace Microsoft.Telepathy.ServiceBroker.FrontEnd
     using Microsoft.Telepathy.Session.Common;
     using Microsoft.Telepathy.Session.Exceptions;
     using Microsoft.Telepathy.Session.Interface;
+    using IdentityUtil;
 
     /// <summary>
     /// FrontEnd Builder
@@ -275,9 +276,13 @@ namespace Microsoft.Telepathy.ServiceBroker.FrontEnd
                 ServiceEndpoint getResponseEndpoint = result.ControllerFrontend.AddServiceEndpoint(typeof(IResponseService), binding, DefaultGetResponsePostfix);
                 getResponseEndpoint.Behaviors.Add(new ControllerFrontendProvider(false, clientManager, brokerAuth, observer, null));
                 result.GetResponseUri = getResponseEndpoint.ListenUri.AbsoluteUri;
-                if (sharedData.StartInfo.UseAad)
+                //if (sharedData.StartInfo.UseAad)
+                if (sharedData.StartInfo.Secure)
                 {
-                   throw new NotSupportedException();
+                    result.ControllerFrontend.UseServiceAuthorizationManagerAsync(
+                        new IdentityServiceAuthManager(null, IdentityUtil.IdentityServerUrl, "SessionLauncher"));
+                        ServiceAuthorizationBehavior myServiceBehavior = result.ControllerFrontend.Description.Behaviors.Find<ServiceAuthorizationBehavior>();
+                    myServiceBehavior.PrincipalPermissionMode = PrincipalPermissionMode.None;
                 }
                 else if (sharedData.StartInfo.LocalUser.GetValueOrDefault())
                 {

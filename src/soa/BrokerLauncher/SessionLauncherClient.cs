@@ -12,6 +12,7 @@ namespace Microsoft.Telepathy.Internal.BrokerLauncher
     using Microsoft.Telepathy.Session;
     using Microsoft.Telepathy.Session.Common;
     using Microsoft.Telepathy.Session.Internal;
+    using IdentityUtil;
 
     /// <summary>
     /// Service client to connect the session launcher in headnode
@@ -25,6 +26,7 @@ namespace Microsoft.Telepathy.Internal.BrokerLauncher
         public SessionLauncherClient(string headNode, string certThumbprint)
             : this(GetSessionLauncherUri(headNode), certThumbprint)
         {
+            this.Endpoint.Behaviors.AddBehaviorForClient().GetAwaiter().GetResult();
         }
 
         /// <summary>

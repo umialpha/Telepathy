@@ -666,13 +666,13 @@ namespace Microsoft.Telepathy.Internal.SessionLauncher.Impls.SessionLaunchers.Az
                         await brokerTask.RefreshAsync();
 
                         var brokerNodeIp = nodes.First(n => n.AffinityId == brokerTask.ComputeNodeInformation.AffinityId).IPAddress;
-                        sessionAllocateInfo.BrokerLauncherEpr = new[] { SoaHelper.GetBrokerLauncherAddress(brokerNodeIp) };
+                        sessionAllocateInfo.BrokerLauncherEpr = new[] { GenerateBrokerLauncherAddress(brokerNodeIp, startInfo) };
                     }
 
                     if (brokerPerfMode)
                     {
                         //If broker node and session launcher node is not the same node, this line should be modified.
-                        sessionAllocateInfo.BrokerLauncherEpr = new[] { SoaHelper.GetBrokerLauncherAddress(Environment.MachineName) };                  
+                        sessionAllocateInfo.BrokerLauncherEpr = new[] { GenerateBrokerLauncherAddress(Environment.MachineName, startInfo) };                  
                     }
                     else
                     {

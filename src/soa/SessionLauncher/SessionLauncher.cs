@@ -567,7 +567,19 @@ namespace Microsoft.Telepathy.Internal.SessionLauncher
             }
         }
 
-        protected internal virtual ServiceRegistrationRepo CreateServiceRegistrationRepo(string regPath) => new ServiceRegistrationRepo(regPath);
+       protected static string GenerateBrokerLauncherAddress(string endpointPrefix, SessionStartInfoContract startInfo)
+       {
+           if (startInfo.UseIds)
+           {
+               return SoaHelper.GetBrokerLauncherIdsAddress(endpointPrefix);
+           }
+           else
+           {
+               return SoaHelper.GetBrokerLauncherAddress(endpointPrefix);
+           }
+       }
+
+       protected internal virtual ServiceRegistrationRepo CreateServiceRegistrationRepo(string regPath) => new ServiceRegistrationRepo(regPath);
 
         /// <summary>
         /// Convert plain text string to SecureString

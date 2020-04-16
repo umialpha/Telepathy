@@ -256,6 +256,8 @@ namespace Microsoft.Telepathy.Session.Common
         /// </summary>
         internal static string SessionLauncherAadAddressFormat => "{0}{1}:{2}/SessionLauncher/AAD";
 
+        public static string SessionLauncherIdsAddressFormat => "{0}{1}:{2}/SessionLauncher/IDS";
+
         /// <summary>
         /// Stores the address format of the scheduler delegation service.
         /// </summary>
@@ -285,6 +287,8 @@ namespace Microsoft.Telepathy.Session.Common
         /// Stores the address format of the AAD broker launcher service.
         /// </summary>
         public static string BrokerLauncherAadAddressFormat => "{0}{1}:{2}/BrokerLauncher/AAD";
+
+        public static string BrokerLauncherIdsAddressFormat => "{0}{1}:{2}/BrokerLauncher/IDS";
 
         /// <summary>
         /// Stores the address format of the broker worker service.
@@ -619,6 +623,11 @@ namespace Microsoft.Telepathy.Session.Common
         public static string GetBrokerLauncherAadAddress(string hostname)
         {
             return string.Format(BrokerLauncherAadAddressFormat, NetTcpPrefix, hostname, BrokerLauncherPort(IsSchedulerOnAzure(hostname)));
+        }
+
+        public static string GetBrokerLauncherIdsAddress(string hostname)
+        {
+            return string.Format(BrokerLauncherIdsAddressFormat, NetTcpPrefix, hostname, BrokerLauncherPort(IsSchedulerOnAzure(hostname)));
         }
 
         public static string GetBrokerLauncherAddress(string hostname, TransportScheme scheme)

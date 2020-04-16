@@ -28,6 +28,7 @@ namespace Microsoft.Hpc.Scheduler.Session.LauncherHostService
     using Microsoft.Telepathy.Session.Internal;
 
     using ISessionLauncher = Microsoft.Telepathy.Internal.SessionLauncher.ISessionLauncher;
+    using IdentityUtil;
 
     // TODO: Consider changing the if/switch branching for schedulers into sub-classes
     /// <summary>
@@ -291,6 +292,10 @@ namespace Microsoft.Hpc.Scheduler.Session.LauncherHostService
                 {
                     this.launcherHost.AddServiceEndpoint(typeof(ISessionLauncher), BindingHelper.HardCodedUnSecureNetTcpBinding, string.Empty);
                     this.launcherHost.AddServiceEndpoint(typeof(ISessionLauncher), BindingHelper.HardCodedUnSecureNetTcpBinding, "Internal");
+                    this.launcherHost.AddServiceEndpoint(typeof(ISessionLauncher), BindingHelper.HardCodedUnSecureNetTcpBinding, "IDS");
+                    string addFormat = SoaHelper.SessionLauncherIdsAddressFormat;
+                    this.launcherHost.Authorization.ServiceAuthorizationManager =
+                        new IdentityServiceAuthManager(addFormat.Substring(addFormat.IndexOf('/')),IdentityUtil.IdentityServerUrl, "SessionLauncher");
 
                     TraceHelper.TraceEvent(TraceEventType.Information, "Add session launcher service endpoint {0}", sessionLauncherAddress);
                 }

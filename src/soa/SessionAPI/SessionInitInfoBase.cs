@@ -46,6 +46,8 @@ namespace Microsoft.Telepathy.Session
         /// </summary>
         public bool UseAad { get; set; }
 
+        public bool UseIds { get; set; }
+
         private bool useLocalUser = false;
 
         /// <summary>
@@ -119,6 +121,11 @@ namespace Microsoft.Telepathy.Session
 
             if ((scheme & TransportScheme.NetTcp) == TransportScheme.NetTcp)
             {
+                if (this.UseIds)
+                {
+                    return string.Format(SoaHelper.SessionLauncherIdsAddressFormat, SoaHelper.NetTcpPrefix, hostname, SoaHelper.SessionLauncherPort(SoaHelper.IsSchedulerOnAzure(hostname)));
+                }
+                else
                 if (this.UseAad)
                 {
                     return string.Format(SoaHelper.SessionLauncherAadAddressFormat, SoaHelper.NetTcpPrefix, hostname, SoaHelper.SessionLauncherPort(SoaHelper.IsSchedulerOnAzure(hostname)));

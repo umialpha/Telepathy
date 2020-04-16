@@ -565,6 +565,7 @@ namespace Microsoft.Telepathy.Session
             info.AzureRequestQueueUris = result.AzureRequestQueueUris;
             info.AzureRequestBlobUri = result.AzureRequestBlobUri;
             info.UseAad = startInfo.UseAad;
+            info.UseIds = startInfo.UseIds;
             info.AzureControllerRequestQueueUri = result.AzureControllerRequestQueueUri;
             info.AzureControllerResponseQueueUri = result.AzureControllerResponseQueueUri;
 
