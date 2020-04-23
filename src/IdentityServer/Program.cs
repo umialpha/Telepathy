@@ -5,6 +5,7 @@ using Serilog;
 using Serilog.Events;
 using Serilog.Sinks.SystemConsole.Themes;
 using System;
+using System.IO;
 
 namespace IdentityServer
 {
@@ -42,6 +43,9 @@ namespace IdentityServer
             Host.CreateDefaultBuilder(args)
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
+                    webBuilder.UseKestrel();
+                    webBuilder.UseContentRoot(Directory.GetCurrentDirectory())
+                        .UseIISIntegration();
                     webBuilder.UseStartup<Startup>();
                     webBuilder.UseSerilog();
                 });

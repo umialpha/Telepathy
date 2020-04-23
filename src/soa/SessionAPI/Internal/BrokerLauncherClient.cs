@@ -36,8 +36,13 @@ namespace Microsoft.Telepathy.Session.Internal
         private void InitAzureOrAadOrCertAuth(IConnectionInfo info, string username, string password)
         {
             if (info.UseIds)
-            { 
-                this.Endpoint.Behaviors.Add(new IdentityServiceEndpointBehavior(IdentityUtil.GetJwtTokenFromROAsync(IdentityUtil.IdentityServerUrl, "ro.client", "secret", "bob", "bob", "SessionLauncher").GetAwaiter().GetResult()));
+            {
+                /*Console.WriteLine("[BrokerLauncherClient] input username & password:");
+                var user = Console.ReadLine();
+                var pwd = Console.ReadLine();
+                this.Endpoint.Behaviors.Add(new IdentityServiceEndpointBehavior(IdentityUtil.GetJwtTokenFromROAsync(IdentityUtil.IdentityServerUrl, "ro.client", "secret", user, pwd, "SessionLauncher").GetAwaiter().GetResult()));
+                this.Endpoint.Behaviors.Add(new IdentityServiceEndpointBehavior(IdentityUtil.GetJwtTokenFromROAsync(IdentityUtil.IdentityServerUrl, "ro.client", "secret", "bob", "bob", "SessionLauncher").GetAwaiter().GetResult()));*/
+                this.Endpoint.Behaviors.AddBehaviorForWinAuthClient().GetAwaiter().GetResult();
             }
 #if HPCPACK
             if (!SoaHelper.IsOnAzure() && !info.UseAad)

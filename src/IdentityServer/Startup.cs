@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using IdentityServer.Cert;
+using IdentityServer.WinAuth;
 
 namespace IdentityServer
 {
@@ -18,11 +19,27 @@ namespace IdentityServer
 
         public void ConfigureServices(IServiceCollection services)
         {
+            //services.AddControllersWithViews();
+            services.Configure<IISOptions>(iis =>
+            {
+                iis.AuthenticationDisplayName = "Windows";
+                iis.AutomaticAuthentication = false;
+            });
+
+            // ..or configures IIS in-proc settings
+            services.Configure<IISServerOptions>(iis =>
+            {
+                iis.AuthenticationDisplayName = "Windows";
+                iis.AutomaticAuthentication = false;
+            });
+
             var builder = services.AddIdentityServer()
                 .AddInMemoryIdentityResources(Config.Ids)
                 .AddInMemoryApiResources(Config.Apis)
                 .AddInMemoryClients(Config.Clients)
-                .AddTestUsers(TestUsers.Users);
+                .AddTestUsers(TestUsers.Users)
+                .AddExtensionGrantValidator<WinAuthGrantValidator>()
+                .AddProfileService<WinAuthProfileService>();
 
             builder.AddSigningCredential(Certificate.Get());
         }

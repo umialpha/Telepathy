@@ -12,15 +12,19 @@ namespace IdentityUtil
 
     public static class IdentityUtil
     {
-        private static string identityServerUrl = "https://localhost:5000";
+        private const string identityServerUrl = "https://localhost:44372";
 
-        private static string defaultROClientId = "ro.client";
+        private const string defaultROClientId = "ro.client";
 
-        private static string defaultClientSecret = "secret";
+        private const string defaultClientSecret = "secret";
 
-        private static string defaultClientId = "client";
+        private const string defaultClientId = "client";
 
-        private static string serviceScope = "SessionLauncher";
+        private const string defaultWinAuthClientId = "win.client";
+
+        private const string serviceScope = "SessionLauncher";
+
+        private const string WinAuthGrantType = "windows_auth";
 
         public static string IdentityServerUrl
         {
@@ -42,12 +46,6 @@ namespace IdentityUtil
             get { return defaultClientId; }
         }
 
-        public static string GenerateIdentityFromHeader(this IPrincipal principal, string header)
-        {
-            //var pi = ValidateJwtToken(header);
-            return string.Empty;
-        }
-
         public static async Task<string> GetJwtTokenFromROAsync(string authority, string clientId, string clientSecret, string userName, string password, string scope)
         {
             var disco = await GetDiscoveryResponse(authority);
@@ -65,6 +63,31 @@ namespace IdentityUtil
             return tokenResponse.AccessToken;
         }
 
+        public static async Task<string> GetJwtTokenFromWinAuthAsync(string authority = identityServerUrl, string clientId = defaultWinAuthClientId, string clientSecret = defaultClientSecret, string scope = serviceScope)
+        {
+            var disco = await GetDiscoveryResponse(authority);
+
+            var httpHandler = new HttpClientHandler
+            {
+                UseDefaultCredentials = true
+            };
+
+            var client = new HttpClient(httpHandler);
+            var tokenResponse = await client.RequestTokenAsync(new TokenRequest()
+            {
+                Address = disco.TokenEndpoint,
+                ClientId = clientId,
+                ClientSecret = clientSecret,
+                GrantType = WinAuthGrantType,
+                Parameters =
+                {
+                    { "scope", scope }
+                }
+            });
+
+            return tokenResponse.AccessToken;
+        }
+
         public static async Task<string> GetJwtTokenFromClientAsync(string authority, string clientId, string clientSecret, string scope)
         {
             var disco = await GetDiscoveryResponse(authority);
@@ -74,7 +97,7 @@ namespace IdentityUtil
                 Address = disco.TokenEndpoint,
                 ClientId = clientId,
                 ClientSecret = clientSecret,
-                Scope = scope,
+                Scope = scope
             });
 
             return tokenResponse.AccessToken;
@@ -97,6 +120,14 @@ namespace IdentityUtil
         {
             var token = await GetJwtTokenFromClientAsync(IdentityServerUrl, DefaultClientId, DefaultClientSecret,
                 serviceScope).ConfigureAwait(false);
+            behaviors.Add(new IdentityServiceEndpointBehavior(token));
+            return behaviors;
+        }
+
+        public static async Task<KeyedByTypeCollection<IEndpointBehavior>> AddBehaviorForWinAuthClient(
+            this KeyedByTypeCollection<IEndpointBehavior> behaviors)
+        {
+            var token = await GetJwtTokenFromWinAuthAsync().ConfigureAwait(false);
             behaviors.Add(new IdentityServiceEndpointBehavior(token));
             return behaviors;
         }

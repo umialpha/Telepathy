@@ -51,7 +51,8 @@ namespace Microsoft.Telepathy.Session.Internal
 
             if (info.UseIds)
             {
-                this.client.Endpoint.Behaviors.Add(new IdentityServiceEndpointBehavior(IdentityUtil.GetJwtTokenFromROAsync(IdentityUtil.IdentityServerUrl, "ro.client", "secret", "bob", "bob", "SessionLauncher").GetAwaiter().GetResult()));
+                //this.client.Endpoint.Behaviors.Add(new IdentityServiceEndpointBehavior(IdentityUtil.GetJwtTokenFromROAsync(IdentityUtil.IdentityServerUrl, "ro.client", "secret", "bob", "bob", "SessionLauncher").GetAwaiter().GetResult()));
+                this.client.Endpoint.Behaviors.AddBehaviorForWinAuthClient().GetAwaiter().GetResult();
             }
         }
 
@@ -80,7 +81,8 @@ namespace Microsoft.Telepathy.Session.Internal
 
             if (info.UseIds)
             {
-                this.client.Endpoint.Behaviors.Add(new IdentityServiceEndpointBehavior(IdentityUtil.GetJwtTokenFromROAsync(IdentityUtil.IdentityServerUrl, "ro.client", "secret", "bob", "bob", "SessionLauncher").GetAwaiter().GetResult()));
+                //this.client.Endpoint.Behaviors.Add(new IdentityServiceEndpointBehavior(IdentityUtil.GetJwtTokenFromROAsync(IdentityUtil.IdentityServerUrl, "ro.client", "secret", "bob", "bob", "SessionLauncher").GetAwaiter().GetResult()));
+                this.client.Endpoint.Behaviors.AddBehaviorForWinAuthClient().GetAwaiter().GetResult();
             }
         }
 

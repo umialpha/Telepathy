@@ -1,4 +1,5 @@
 ﻿
+using IdentityServer.WinAuth;
 using IdentityServer4.Models;
 using System.Collections.Generic;
 
@@ -44,6 +45,23 @@ namespace IdentityServer
                     ClientId = "client",
 
                     AllowedGrantTypes = GrantTypes.ClientCredentials,
+
+                    ClientSecrets =
+                    {
+                        new Secret("secret".Sha256())
+                    },
+
+                    // scopes that client has access to
+                    AllowedScopes =
+                    {
+                        "SessionLauncher"
+                    }
+                },
+                new Client
+                {
+                    ClientId = "win.client",
+
+                    AllowedGrantTypes = new List<string>{ WinAuthOption.WindowsAuthGrantType },
 
                     ClientSecrets =
                     {

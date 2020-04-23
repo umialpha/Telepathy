@@ -505,8 +505,9 @@ namespace Microsoft.Telepathy.Session
             // }
             if (this.session.Info.UseIds)
             {
-                this.jwtTokenCache = IdentityUtil.GetJwtTokenFromROAsync(IdentityUtil.IdentityServerUrl, "ro.client",
-                    "secret", "bob", "bob", "SessionLauncher").GetAwaiter().GetResult();
+                // this.jwtTokenCache = IdentityUtil.GetJwtTokenFromROAsync(IdentityUtil.IdentityServerUrl, "ro.client",
+                //    "secret", "bob", "bob", "SessionLauncher").GetAwaiter().GetResult();
+                this.jwtTokenCache = IdentityUtil.GetJwtTokenFromWinAuthAsync().GetAwaiter().GetResult();
             }
 #if !net40 && HPCPACK
             if (this.session.Info.UseAad)
