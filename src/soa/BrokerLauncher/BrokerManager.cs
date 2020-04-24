@@ -681,7 +681,8 @@ namespace Microsoft.Telepathy.Internal.BrokerLauncher
 #endif
             if (recoverInfo.StartInfo.UseIds)
             {
-                brokerInfo.JobOwnerSID = ClaimsPrincipal.Current.FindFirst(JwtClaimTypes.Subject).Value;
+                brokerInfo.JobOwnerSID = await this.schedulerHelper.GetJobOwnerSID(brokerInfo.SessionId);
+                    //ClaimsPrincipal.Current.FindFirst(JwtClaimTypes.Subject).Value;
             }
             brokerInfo.Durable = recoverInfo.Durable;
             brokerInfo.Attached = attached;

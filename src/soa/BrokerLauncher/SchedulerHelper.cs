@@ -26,6 +26,7 @@ namespace Microsoft.Telepathy.Internal.BrokerLauncher
     using Microsoft.Telepathy.ServiceBroker.Common.ServiceJobMonitor;
     using Microsoft.Telepathy.Session;
     using Microsoft.Telepathy.Session.Common;
+    using Microsoft.Telepathy.Session.Exceptions;
     using Microsoft.Telepathy.Session.Interface;
     using Microsoft.Telepathy.Session.Internal;
 
@@ -270,14 +271,13 @@ namespace Microsoft.Telepathy.Internal.BrokerLauncher
         /// <returns>returns job owner's sid</returns>
         public async Task<string> GetJobOwnerSID(string jobId)
         {
-            /*
             RetryManager retry = SoaHelper.GetDefaultExponentialRetryManager();
 
             string sid = null;
             try
             {
                 sid = await RetryHelper<string>.InvokeOperationAsync(
-                    async () => await this.schedulerClient.Value.GetJobOwnerSID(jobId),
+                    async () => await this.schedulerClient.Value.GetJobOwnerIDAsync(jobId),
                     async (e, r) =>
                     {
                         TraceHelper.TraceEvent(jobId, System.Diagnostics.TraceEventType.Error,
@@ -288,7 +288,7 @@ namespace Microsoft.Telepathy.Internal.BrokerLauncher
             }
             catch (Exception ex)
             {
-                TraceHelper.TraceEvent(TraceEventType.Warning, "[SchedulerHelper].GetJobTemplateACL: Exception {0}", ex);
+                TraceHelper.TraceEvent(TraceEventType.Warning, "[SchedulerHelper].GetJobOwnerSID: Exception {0}", ex);
                 ThrowHelper.ThrowSessionFault(SOAFaultCode.Broker_CannotGetUserSID, SR.CannotGetUserSID);
             }
 
@@ -298,8 +298,6 @@ namespace Microsoft.Telepathy.Internal.BrokerLauncher
             }
 
             return sid;
-            */
-            throw new NotSupportedException();
         }
 
         /// <summary>

@@ -69,5 +69,10 @@ namespace Microsoft.Telepathy.ServiceBroker.Common.SchedulerAdapter
         {
             return await this.Channel.GetTaskErrorCode(jobId, globalTaskId);
         }
+
+        public async Task<string> GetJobOwnerIDAsync(string sessionId)
+        {
+            return await this.Channel.GetJobOwnerIDAsync(sessionId);
+        }
     }
 }
