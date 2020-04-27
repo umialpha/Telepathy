@@ -22,7 +22,7 @@ Add [Microsoft.Telepathy.Session](https://www.nuget.org/packages/Microsoft.Telep
 
 ### Deploy a Cluster
 
-<a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2FTelepathy%2Fdev%2Fdeploy%2Fazuredeploy.json" target="_blank">
+<a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2FTelepathy%2Fdev%2Fdeploy%2Fazuredeploy.nightly.json" target="_blank">
     <img src="http://azuredeploy.net/deploybutton.png"/>
 </a>
 
