@@ -1,4 +1,4 @@
-# HA Distributed Brokes PoC Design for Telepathy based on Sparrow 
+# HA Distributed Brokers PoC Design for Telepathy based on Sparrow 
 
 ## Backgroud
 
