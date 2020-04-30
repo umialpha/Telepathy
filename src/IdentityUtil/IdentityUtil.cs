@@ -22,9 +22,13 @@ namespace IdentityUtil
 
         private const string defaultWinAuthClientId = "win.client";
 
-        private const string serviceScope = "SessionLauncher";
+        private const string generalScope = "SessionLauncher";
 
         private const string WinAuthGrantType = "windows_auth";
+
+        private const string schedulerAdapterScope = "SchedulerAdapter";
+
+        private const string brokerWorkerScope = "BrokerWorker";
 
         public static string IdentityServerUrl
         {
@@ -46,6 +50,21 @@ namespace IdentityUtil
             get { return defaultClientId; }
         }
 
+        public static string GeneralScope
+        {
+            get { return generalScope; }
+        }
+
+        public static string SchedulerAdapterScope
+        {
+            get { return schedulerAdapterScope; }
+        }
+
+        public static string BrokerWorkerScope
+        {
+            get { return brokerWorkerScope; }    
+        }
+
         public static async Task<string> GetJwtTokenFromROAsync(string authority, string clientId, string clientSecret, string userName, string password, string scope)
         {
             var disco = await GetDiscoveryResponse(authority);
@@ -63,7 +82,7 @@ namespace IdentityUtil
             return tokenResponse.AccessToken;
         }
 
-        public static async Task<string> GetJwtTokenFromWinAuthAsync(string authority = identityServerUrl, string clientId = defaultWinAuthClientId, string clientSecret = defaultClientSecret, string scope = serviceScope)
+        public static async Task<string> GetJwtTokenFromWinAuthAsync(string authority = identityServerUrl, string clientId = defaultWinAuthClientId, string clientSecret = defaultClientSecret, string scope = generalScope)
         {
             var disco = await GetDiscoveryResponse(authority);
 
@@ -116,10 +135,10 @@ namespace IdentityUtil
         }
 
         public static async Task<KeyedByTypeCollection<IEndpointBehavior>> AddBehaviorForClient(
-            this KeyedByTypeCollection<IEndpointBehavior> behaviors)
+            this KeyedByTypeCollection<IEndpointBehavior> behaviors, string scope)
         {
             var token = await GetJwtTokenFromClientAsync(IdentityServerUrl, DefaultClientId, DefaultClientSecret,
-                serviceScope).ConfigureAwait(false);
+                scope).ConfigureAwait(false);
             behaviors.Add(new IdentityServiceEndpointBehavior(token));
             return behaviors;
         }

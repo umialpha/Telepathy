@@ -369,6 +369,8 @@ namespace Microsoft.Hpc.Scheduler.Session.LauncherHostService
             {
                 // Use insecure binding until unified authentication logic is implemented
                 this.delegationHost.AddServiceEndpoint(typeof(ISchedulerAdapter), BindingHelper.HardCodedUnSecureNetTcpBinding, string.Empty);
+                this.delegationHost.Authorization.ServiceAuthorizationManager =
+                        new IdentityServiceAuthManager(null, IdentityUtil.IdentityServerUrl, "SchedulerAdapter");
                 // if (SessionLauncherRuntimeConfiguration.OpenAzureStorageListener)
                 // {
                 //     this.delegationHost.AddServiceEndpoint(

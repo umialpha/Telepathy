@@ -277,7 +277,7 @@ namespace Microsoft.Telepathy.ServiceBroker.FrontEnd
                 getResponseEndpoint.Behaviors.Add(new ControllerFrontendProvider(false, clientManager, brokerAuth, observer, null));
                 result.GetResponseUri = getResponseEndpoint.ListenUri.AbsoluteUri;
                 //if (sharedData.StartInfo.UseAad)
-                if (sharedData.StartInfo.Secure)
+                if (sharedData.StartInfo.UseIds)
                 {
                     result.ControllerFrontend.UseServiceAuthorizationManagerAsync(
                         new IdentityServiceAuthManager(null, IdentityUtil.IdentityServerUrl, "SessionLauncher"));

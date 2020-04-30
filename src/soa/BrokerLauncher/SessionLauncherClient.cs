@@ -26,7 +26,6 @@ namespace Microsoft.Telepathy.Internal.BrokerLauncher
         public SessionLauncherClient(string headNode, string certThumbprint)
             : this(GetSessionLauncherUri(headNode), certThumbprint)
         {
-            this.Endpoint.Behaviors.AddBehaviorForClient().GetAwaiter().GetResult();
         }
 
         /// <summary>
@@ -42,7 +41,7 @@ namespace Microsoft.Telepathy.Internal.BrokerLauncher
             this.ClientCredentials.ServiceCertificate.Authentication.RevocationMode = X509RevocationMode.NoCheck;
             this.ClientCredentials.ClientCertificate.SetCertificate(StoreLocation.LocalMachine, StoreName.My, X509FindType.FindByThumbprint, certThumbprint);
 #endif
-
+            this.Endpoint.Behaviors.AddBehaviorForClient(IdentityUtil.GeneralScope).GetAwaiter().GetResult();
             if (!SoaHelper.IsOnAzure())
             {
                 this.ClientCredentials.Windows.AllowedImpersonationLevel = TokenImpersonationLevel.Impersonation;

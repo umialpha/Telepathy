@@ -307,7 +307,7 @@ namespace Microsoft.Telepathy.Internal.SessionLauncher.Impls.SchedulerDelegation
             {
                 TraceHelper.TraceEvent(TraceEventType.Error, ex.ToString());
             }
-            return string.Empty;
+            return null;
         }
     }
 }
