@@ -51,7 +51,6 @@ namespace Microsoft.Telepathy.Session.Internal
 
             if (info.UseIds)
             {
-                //this.client.Endpoint.Behaviors.Add(new IdentityServiceEndpointBehavior(IdentityUtil.GetJwtTokenFromROAsync(IdentityUtil.IdentityServerUrl, "ro.client", "secret", "bob", "bob", "SessionLauncher").GetAwaiter().GetResult()));
                 this.client.Endpoint.Behaviors.AddBehaviorForWinAuthClient().GetAwaiter().GetResult();
             }
         }
@@ -81,7 +80,6 @@ namespace Microsoft.Telepathy.Session.Internal
 
             if (info.UseIds)
             {
-                //this.client.Endpoint.Behaviors.Add(new IdentityServiceEndpointBehavior(IdentityUtil.GetJwtTokenFromROAsync(IdentityUtil.IdentityServerUrl, "ro.client", "secret", "bob", "bob", "SessionLauncher").GetAwaiter().GetResult()));
                 this.client.Endpoint.Behaviors.AddBehaviorForWinAuthClient().GetAwaiter().GetResult();
             }
         }
@@ -102,17 +100,6 @@ namespace Microsoft.Telepathy.Session.Internal
                     async () => await this.client.AllocateDurableAsync(startInfo.Data, this.endpointPrefix).ConfigureAwait(false),
                     (e, r) =>
                     {
-                        if (e is FaultException)
-                        {
-                            IdentityMessageFault faultDetail = ((FaultException) e).CreateMessageFault()
-                                .GetDetail<IdentityMessageFault>();
-                            Console.WriteLine("Input username, password.");
-                            string username = Console.ReadLine();
-                            string password = Console.ReadLine();
-                            this.client.Endpoint.Behaviors.AddBehaviorFromEx(faultDetail, username, password).GetAwaiter().GetResult();
-                            return Task.CompletedTask;
-                        }
-
                         var remainingTime = GetRemainingTime(timeout, startTime);
                         if ((e is EndpointNotFoundException || (e is CommunicationException && !(e is FaultException<SessionFault>))) && remainingTime > TimeSpan.Zero)
                         {
@@ -135,23 +122,11 @@ namespace Microsoft.Telepathy.Session.Internal
                     (e, r) =>
                     {
                         var remainingTime = GetRemainingTime(timeout, startTime);
-                        if (remainingTime > TimeSpan.Zero)
+                        if ((e is EndpointNotFoundException || (e is CommunicationException && !(e is FaultException<SessionFault>))) && remainingTime > TimeSpan.Zero)
                         {
-                            if (e is FaultException)
-                            {
-                                IdentityMessageFault faultDetail = ((FaultException)e).CreateMessageFault()
-                                    .GetDetail<IdentityMessageFault>();
-                                Console.WriteLine("Input username, password1.");
-                                string username = Console.ReadLine();
-                                string password = Console.ReadLine();
-                                this.client.Endpoint.Behaviors.AddBehaviorFromEx(faultDetail, username, password).GetAwaiter().GetResult();
-                            }
-                            else if ((e is EndpointNotFoundException || (e is CommunicationException && !(e is FaultException<SessionFault>))))
-                            {
-                                Utility.SafeCloseCommunicateObject(this.client);
-                                this.client = new SessionLauncherClient(startInfo, this.binding);
-                                this.client.InnerChannel.OperationTimeout = remainingTime;
-                            }
+                            Utility.SafeCloseCommunicateObject(this.client);
+                            this.client = new SessionLauncherClient(startInfo, this.binding);
+                            this.client.InnerChannel.OperationTimeout = remainingTime;
                         }
                         else
                         {

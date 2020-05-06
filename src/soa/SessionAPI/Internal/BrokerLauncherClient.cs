@@ -37,12 +37,7 @@ namespace Microsoft.Telepathy.Session.Internal
         {
             if (info.UseIds)
             {
-                /*Console.WriteLine("[BrokerLauncherClient] input username & password:");
-                var user = Console.ReadLine();
-                var pwd = Console.ReadLine();
-                this.Endpoint.Behaviors.Add(new IdentityServiceEndpointBehavior(IdentityUtil.GetJwtTokenFromROAsync(IdentityUtil.IdentityServerUrl, "ro.client", "secret", user, pwd, "SessionLauncher").GetAwaiter().GetResult()));
-                this.Endpoint.Behaviors.Add(new IdentityServiceEndpointBehavior(IdentityUtil.GetJwtTokenFromROAsync(IdentityUtil.IdentityServerUrl, "ro.client", "secret", "bob", "bob", "SessionLauncher").GetAwaiter().GetResult()));*/
-                this.Endpoint.Behaviors.AddBehaviorForWinAuthClient().GetAwaiter().GetResult();
+                this.Endpoint.Behaviors.AddBehaviorForWinAuthClient("BrokerLauncher").GetAwaiter().GetResult();
             }
 #if HPCPACK
             if (!SoaHelper.IsOnAzure() && !info.UseAad)

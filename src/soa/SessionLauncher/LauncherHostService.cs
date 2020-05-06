@@ -29,6 +29,7 @@ namespace Microsoft.Hpc.Scheduler.Session.LauncherHostService
 
     using ISessionLauncher = Microsoft.Telepathy.Internal.SessionLauncher.ISessionLauncher;
     using IdentityUtil;
+    using System.Collections.Generic;
 
     // TODO: Consider changing the if/switch branching for schedulers into sub-classes
     /// <summary>
@@ -293,10 +294,15 @@ namespace Microsoft.Hpc.Scheduler.Session.LauncherHostService
                     this.launcherHost.AddServiceEndpoint(typeof(ISessionLauncher), BindingHelper.HardCodedUnSecureNetTcpBinding, string.Empty);
                     this.launcherHost.AddServiceEndpoint(typeof(ISessionLauncher), BindingHelper.HardCodedUnSecureNetTcpBinding, "Internal");
                     this.launcherHost.AddServiceEndpoint(typeof(ISessionLauncher), BindingHelper.HardCodedUnSecureNetTcpBinding, "IDS");
-                    string addFormat = SoaHelper.SessionLauncherIdsAddressFormat;
-                    this.launcherHost.Authorization.ServiceAuthorizationManager =
-                        new IdentityServiceAuthManager(addFormat.Substring(addFormat.IndexOf('/')),IdentityUtil.IdentityServerUrl, "SessionLauncher");
 
+                    if (!string.IsNullOrEmpty(SessionLauncherRuntimeConfiguration.IdentityServerUrl))
+                    {
+                        List<string> targetPaths = new List<string>();
+                        targetPaths.Add(SoaHelper.SessionLauncherInternalAddressFormat.Substring(SoaHelper.SessionLauncherInternalAddressFormat.IndexOf('/')));
+                        targetPaths.Add(SoaHelper.SessionLauncherIdsAddressFormat.Substring(SoaHelper.SessionLauncherIdsAddressFormat.IndexOf('/')));
+                        this.launcherHost.Authorization.ServiceAuthorizationManager =
+                            new IdentityServiceAuthManager(targetPaths, SessionLauncherRuntimeConfiguration.IdentityServerUrl, IdentityUtil.SessionLauncherApi);
+                    }
                     TraceHelper.TraceEvent(TraceEventType.Information, "Add session launcher service endpoint {0}", sessionLauncherAddress);
                 }
 
@@ -369,8 +375,12 @@ namespace Microsoft.Hpc.Scheduler.Session.LauncherHostService
             {
                 // Use insecure binding until unified authentication logic is implemented
                 this.delegationHost.AddServiceEndpoint(typeof(ISchedulerAdapter), BindingHelper.HardCodedUnSecureNetTcpBinding, string.Empty);
-                this.delegationHost.Authorization.ServiceAuthorizationManager =
-                        new IdentityServiceAuthManager(null, IdentityUtil.IdentityServerUrl, "SchedulerAdapter");
+                if (!string.IsNullOrEmpty(SessionLauncherRuntimeConfiguration.IdentityServerUrl))
+                {
+                    this.delegationHost.Authorization.ServiceAuthorizationManager =
+                            new IdentityServiceAuthManager(null, SessionLauncherRuntimeConfiguration.IdentityServerUrl, IdentityUtil.SchedulerAdapterApi);
+                }
+
                 // if (SessionLauncherRuntimeConfiguration.OpenAzureStorageListener)
                 // {
                 //     this.delegationHost.AddServiceEndpoint(

@@ -853,9 +853,8 @@ namespace Microsoft.Telepathy.Session.Internal
                             new InstanceContext(this.ResponseCallback));
                             this.SetClientCredential(responseClient);
 
-                        if (this.info.Secure)
+                        if (this.info.UseIds)
                         {
-                            //responseClient.Endpoint.Behaviors.Add(new IdentityServiceEndpointBehavior(IdentityUtil.GetJwtTokenFromROAsync(IdentityUtil.IdentityServerUrl, "ro.client", "secret", "bob", "bob", "SessionLauncher").GetAwaiter().GetResult()));
                             responseClient.Endpoint.Behaviors.AddBehaviorForWinAuthClient().GetAwaiter().GetResult();
                         }
 
@@ -869,9 +868,8 @@ namespace Microsoft.Telepathy.Session.Internal
                             GenerateEndpointAddress(this.info.ControllerEpr, this.scheme, this.info.Secure, this.info.IsAadOrLocalUser));
                             this.SetClientCredential(controllerClient);
 
-                        if (this.info.Secure)
+                        if (this.info.UseIds)
                         {
-                            //controllerClient.Endpoint.Behaviors.Add(new IdentityServiceEndpointBehavior(IdentityUtil.GetJwtTokenFromROAsync(IdentityUtil.IdentityServerUrl, "ro.client", "secret", "bob", "bob", "SessionLauncher").GetAwaiter().GetResult()));
                             controllerClient.Endpoint.Behaviors.AddBehaviorForWinAuthClient().GetAwaiter().GetResult();
                         }
 

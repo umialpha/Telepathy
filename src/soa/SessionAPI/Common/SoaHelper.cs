@@ -249,7 +249,7 @@ namespace Microsoft.Telepathy.Session.Common
         /// <summary>
         /// Stores the address format of the session launcher internal service.
         /// </summary>
-        internal static string SessionLauncherInternalAddressFormat => "{0}{1}:{2}/SessionLauncher/Internal";
+        public static string SessionLauncherInternalAddressFormat => "{0}{1}:{2}/SessionLauncher/Internal";
         
         /// <summary>
         /// Stores the address format of the session launcher AAD service.

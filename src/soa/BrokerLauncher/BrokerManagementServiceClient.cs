@@ -23,7 +23,6 @@ namespace Microsoft.Telepathy.Internal.BrokerLauncher
         /// <param name="remoteAddress">indicating the remote address</param>
         public BrokerManagementServiceClient(Binding binding, EndpointAddress remoteAddress) : base(binding, remoteAddress) 
         {
-            this.Endpoint.Behaviors.AddBehaviorForClient(IdentityUtil.BrokerWorkerScope).GetAwaiter().GetResult();
         }
 
         /// <summary>

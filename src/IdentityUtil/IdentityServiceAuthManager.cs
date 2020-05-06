@@ -20,9 +20,9 @@ namespace IdentityUtil
         private string issuerName;
         private readonly string audience;
         private string authority;
-        private string targetPath = null;
+        private List<string> targetPaths;
 
-        public IdentityServiceAuthManager(string targetPath, string authority, string audience)
+        public IdentityServiceAuthManager(List<string> targetPaths, string authority, string audience)
         {
             JwtSecurityTokenHandler.DefaultInboundClaimTypeMap = new Dictionary<string, string>();
 
@@ -33,18 +33,28 @@ namespace IdentityUtil
             this.issuerName = disco.Issuer;
             this.audience = audience;
             this.authority = authority;
-            this.targetPath = targetPath;
+            this.targetPaths = targetPaths;
         }
 
         protected override bool CheckAccessCore(OperationContext operationContext)
         {
-            if (!string.IsNullOrEmpty(this.targetPath))
+            if (this.targetPaths != null && this.targetPaths.Count > 0)
             {
                 string incomingPath = operationContext.IncomingMessageHeaders.To.PathAndQuery.ToString();
-                if (!incomingPath.Equals(this.targetPath, StringComparison.InvariantCultureIgnoreCase))
+
+                bool freeIncome = true;
+
+                foreach (var targetPath in this.targetPaths)
                 {
-                    // This thread comes from thread pool, which may previously be assigned AAD user principal.
-                    // We need to clear principal here.
+                    if (incomingPath.Equals(targetPath, StringComparison.InvariantCultureIgnoreCase))
+                    {
+                        freeIncome = false;
+                        break;
+                    }
+                }
+
+                if (freeIncome)
+                {
                     Thread.CurrentPrincipal = null;
                     return base.CheckAccessCore(operationContext);
                 }

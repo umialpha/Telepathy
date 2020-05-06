@@ -22,13 +22,13 @@ namespace IdentityUtil
 
         private const string defaultWinAuthClientId = "win.client";
 
-        private const string generalScope = "SessionLauncher";
+        private const string sessionLauncherApi = "SessionLauncher";
 
         private const string WinAuthGrantType = "windows_auth";
 
-        private const string schedulerAdapterScope = "SchedulerAdapter";
+        private const string schedulerAdapterApi = "SchedulerAdapter";
 
-        private const string brokerWorkerScope = "BrokerWorker";
+        private const string brokerLauncherApi = "BrokerLauncher";
 
         public static string IdentityServerUrl
         {
@@ -50,19 +50,19 @@ namespace IdentityUtil
             get { return defaultClientId; }
         }
 
-        public static string GeneralScope
+        public static string SessionLauncherApi
         {
-            get { return generalScope; }
+            get { return sessionLauncherApi; }
         }
 
-        public static string SchedulerAdapterScope
+        public static string SchedulerAdapterApi
         {
-            get { return schedulerAdapterScope; }
+            get { return schedulerAdapterApi; }
         }
 
-        public static string BrokerWorkerScope
+        public static string BrokerLauncherApi
         {
-            get { return brokerWorkerScope; }    
+            get { return brokerLauncherApi; }
         }
 
         public static async Task<string> GetJwtTokenFromROAsync(string authority, string clientId, string clientSecret, string userName, string password, string scope)
@@ -82,7 +82,7 @@ namespace IdentityUtil
             return tokenResponse.AccessToken;
         }
 
-        public static async Task<string> GetJwtTokenFromWinAuthAsync(string authority = identityServerUrl, string clientId = defaultWinAuthClientId, string clientSecret = defaultClientSecret, string scope = generalScope)
+        public static async Task<string> GetJwtTokenFromWinAuthAsync(string authority = identityServerUrl, string clientId = defaultWinAuthClientId, string clientSecret = defaultClientSecret, string scope = sessionLauncherApi)
         {
             var disco = await GetDiscoveryResponse(authority);
 
@@ -144,9 +144,9 @@ namespace IdentityUtil
         }
 
         public static async Task<KeyedByTypeCollection<IEndpointBehavior>> AddBehaviorForWinAuthClient(
-            this KeyedByTypeCollection<IEndpointBehavior> behaviors)
+            this KeyedByTypeCollection<IEndpointBehavior> behaviors, string scope = sessionLauncherApi)
         {
-            var token = await GetJwtTokenFromWinAuthAsync().ConfigureAwait(false);
+            var token = await GetJwtTokenFromWinAuthAsync(scope: scope).ConfigureAwait(false);
             behaviors.Add(new IdentityServiceEndpointBehavior(token));
             return behaviors;
         }

@@ -32,7 +32,7 @@ namespace Microsoft.Telepathy.ServiceBroker.Common.SchedulerAdapter
         {
             this.predefinedSvcHost = predefinedSvcHost;
             this.dispatcherManager = dispatcherManager;
-            this.Endpoint.Behaviors.AddBehaviorForClient(IdentityUtil.SchedulerAdapterScope).GetAwaiter().GetResult();
+            this.Endpoint.Behaviors.AddBehaviorForClient(IdentityUtil.SchedulerAdapterApi).GetAwaiter().GetResult();
         }
 
         public async Task<bool> UpdateBrokerInfoAsync(string sessionId, Dictionary<string, object> properties) => await this.Channel.UpdateBrokerInfoAsync(sessionId, properties);

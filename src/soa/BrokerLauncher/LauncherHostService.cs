@@ -24,6 +24,7 @@ namespace Microsoft.Hpc.Scheduler.Session.Internal.LauncherHostService
     using Microsoft.Telepathy.Session.Internal;
     using IdentityUtil;
     using IBrokerLauncher = Microsoft.Telepathy.Internal.BrokerLauncher.IBrokerLauncher;
+    using System.Collections.Generic;
 
     /// <summary>
     /// Launcher Host Service
@@ -390,9 +391,13 @@ namespace Microsoft.Hpc.Scheduler.Session.Internal.LauncherHostService
                     this.launcherHost.AddServiceEndpoint(typeof(IBrokerLauncher), BindingHelper.HardCodedUnSecureNetTcpBinding, "IDS");
                     // this.launcherHost.Credentials.UseInternalAuthenticationAsync(true).GetAwaiter().GetResult();
 
-                    string addFormat = SoaHelper.BrokerLauncherIdsAddressFormat;
-                    this.launcherHost.Authorization.ServiceAuthorizationManager =
-                        new IdentityServiceAuthManager(addFormat.Substring(addFormat.IndexOf('/')), IdentityUtil.IdentityServerUrl, "SessionLauncher");
+                    if (!string.IsNullOrEmpty(BrokerLauncherSettings.Default.IdentityServerUrl))
+                    {
+                        List<string> targetPath = new List<string>();
+                        targetPath.Add(SoaHelper.BrokerLauncherIdsAddressFormat.Substring(SoaHelper.BrokerLauncherIdsAddressFormat.IndexOf('/')));
+                        this.launcherHost.Authorization.ServiceAuthorizationManager =
+                            new IdentityServiceAuthManager(targetPath, BrokerLauncherSettings.Default.IdentityServerUrl, IdentityUtil.BrokerLauncherApi);
+                    }
 
                     ServiceAuthorizationBehavior myServiceBehavior = this.launcherHost.Description.Behaviors.Find<ServiceAuthorizationBehavior>();
                     myServiceBehavior.PrincipalPermissionMode = PrincipalPermissionMode.None;

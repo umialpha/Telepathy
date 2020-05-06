@@ -14,7 +14,6 @@ namespace Microsoft.Telepathy.Internal.BrokerShim
     using System.ServiceModel.Description;
     using System.Threading;
     using CommandLine;
-    using IdentityUtil;
     using Microsoft.Telepathy.RuntimeTrace;
     using Microsoft.Telepathy.Session;
     using Microsoft.Telepathy.Session.Common;
@@ -97,10 +96,6 @@ namespace Microsoft.Telepathy.Internal.BrokerShim
                     host = new ServiceHost(instance, brokerManagementServiceAddress);
                     host.CloseTimeout = TimeSpan.FromSeconds(1);
                     host.AddServiceEndpoint(typeof(IBrokerManagementService), BindingHelper.HardCodedBrokerManagementServiceBinding, String.Empty);
-                    host.Authorization.ServiceAuthorizationManager =
-                        new IdentityServiceAuthManager(null, IdentityUtil.IdentityServerUrl, "BrokerWorker");
-                    ServiceAuthorizationBehavior myServiceBehavior = host.Description.Behaviors.Find<ServiceAuthorizationBehavior>();
-                    myServiceBehavior.PrincipalPermissionMode = PrincipalPermissionMode.None;
                     host.Open();
 
                     trace.LogBrokerWorkerMessage(pid, "[Main] Open broker management service succeeded.");
