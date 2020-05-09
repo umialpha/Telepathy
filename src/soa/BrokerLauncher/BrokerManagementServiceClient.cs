@@ -6,7 +6,7 @@ namespace Microsoft.Telepathy.Internal.BrokerLauncher
     using System;
     using System.ServiceModel;
     using System.ServiceModel.Channels;
-    using IdentityUtil;
+
     using Microsoft.Hpc.Scheduler.Session;
     using Microsoft.Telepathy.Session;
     using Microsoft.Telepathy.Session.Interface;
@@ -21,9 +21,7 @@ namespace Microsoft.Telepathy.Internal.BrokerLauncher
         /// </summary>
         /// <param name="binding">indicating the binding</param>
         /// <param name="remoteAddress">indicating the remote address</param>
-        public BrokerManagementServiceClient(Binding binding, EndpointAddress remoteAddress) : base(binding, remoteAddress) 
-        {
-        }
+        public BrokerManagementServiceClient(Binding binding, EndpointAddress remoteAddress) : base(binding, remoteAddress) { }
 
         /// <summary>
         /// Ask to close the broker

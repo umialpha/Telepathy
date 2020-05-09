@@ -19,7 +19,6 @@ namespace Microsoft.Telepathy.Session
     using Microsoft.Telepathy.Session.Interface;
     using Microsoft.Telepathy.Session.Internal;
     using Microsoft.Telepathy.Session.Internal.AzureQueue;
-    using IdentityUtil;
     using SimpleAuth;
 
     /// <summary>

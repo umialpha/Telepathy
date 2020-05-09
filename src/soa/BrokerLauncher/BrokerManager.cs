@@ -1,8 +1,6 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-using IdentityModel;
-
 namespace Microsoft.Telepathy.Internal.BrokerLauncher
 {
     using System;
@@ -28,7 +26,6 @@ namespace Microsoft.Telepathy.Internal.BrokerLauncher
     using Microsoft.Telepathy.Session.Exceptions;
     using Microsoft.Telepathy.Session.Interface;
     using Microsoft.Telepathy.Session.Internal;
-    using System.Security.Claims;
 
     /// <summary>
     /// Manager for all broker app domains

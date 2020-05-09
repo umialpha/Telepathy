@@ -14,7 +14,6 @@ namespace Microsoft.Telepathy.Session.Internal
     using Microsoft.Telepathy.Session.Common;
     using Microsoft.Telepathy.Session.Interface;
     using Microsoft.Telepathy.Session.Internal.AzureQueue;
-    using IdentityUtil;
     using SimpleAuth;
     /// <summary>
     /// Broker frontend factory to build proxy to communicate to broker

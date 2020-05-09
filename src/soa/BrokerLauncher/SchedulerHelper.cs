@@ -492,7 +492,6 @@ namespace Microsoft.Telepathy.Internal.BrokerLauncher
                         this.sessionNode = new Lazy<string>(() => this.ResolveSessionNodeWithRetries().GetAwaiter().GetResult(), LazyThreadSafetyMode.ExecutionAndPublication);
                         this.certThumbprint = new Lazy<string>(() => this.context.GetSSLThumbprint().GetAwaiter().GetResult(), LazyThreadSafetyMode.ExecutionAndPublication);
 
-
                         if (e is FaultException)
                         {
                             this.schedulerClient = new Lazy<SchedulerAdapterClient>(
