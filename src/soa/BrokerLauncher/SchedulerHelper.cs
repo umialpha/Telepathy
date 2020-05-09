@@ -283,7 +283,7 @@ namespace Microsoft.Telepathy.Internal.BrokerLauncher
                         TraceHelper.TraceEvent(jobId, System.Diagnostics.TraceEventType.Error,
                             "[SchedulerHelper] Exception throwed while fetch job owner's SID: {0}\nRetryCount = {1}", e,
                             r.RetryCount);
-                        await this.RenewSchedulerAdapterClientAsync();
+                        await this.RenewSchedulerAdapterClientAsync(e);
                     }, retry);
             }
             catch (Exception ex)
@@ -318,7 +318,7 @@ namespace Microsoft.Telepathy.Internal.BrokerLauncher
                 async (e, r) =>
                     {
                         TraceHelper.TraceEvent(jobid, System.Diagnostics.TraceEventType.Error, "[SchedulerHelper] Exception throwed while failing job: {0}\nRetryCount = {1}", e, r.RetryCount);
-                        await this.RenewSchedulerAdapterClientAsync();
+                        await this.RenewSchedulerAdapterClientAsync(e);
                     },
                 retry);
         }
@@ -387,7 +387,7 @@ namespace Microsoft.Telepathy.Internal.BrokerLauncher
                                    string.Join(",", keys),
                                    r.RetryCount,
                                    e);
-                               await this.RenewSessionLauncherClientAsync();
+                               await this.RenewSessionLauncherClientAsync(e);
                            },
                        retry);
         }
@@ -433,7 +433,7 @@ namespace Microsoft.Telepathy.Internal.BrokerLauncher
                        async (e, r) =>
                            {
                                TraceHelper.TraceEvent(TraceEventType.Warning, "[SchedulerHelper] Failed to get cluster info, Retry:{0}, Error:{1}", r.RetryCount, e);
-                               await this.RenewSessionLauncherClientAsync();
+                               await this.RenewSessionLauncherClientAsync(e);
                            },
                        retry);
         }
@@ -475,7 +475,7 @@ namespace Microsoft.Telepathy.Internal.BrokerLauncher
         /// <summary>
         /// Renew client proxy to scheduler adapter internal service
         /// </summary>
-        private async Task RenewSchedulerAdapterClientAsync()
+        private async Task RenewSchedulerAdapterClientAsync(Exception e)
         {
             if (this.schedulerClient.IsValueCreated)
             {
@@ -491,9 +491,21 @@ namespace Microsoft.Telepathy.Internal.BrokerLauncher
 
                         this.sessionNode = new Lazy<string>(() => this.ResolveSessionNodeWithRetries().GetAwaiter().GetResult(), LazyThreadSafetyMode.ExecutionAndPublication);
                         this.certThumbprint = new Lazy<string>(() => this.context.GetSSLThumbprint().GetAwaiter().GetResult(), LazyThreadSafetyMode.ExecutionAndPublication);
-                        this.schedulerClient = new Lazy<SchedulerAdapterClient>(
-                            () => new SchedulerAdapterClient(BindingHelper.HardCodedUnSecureNetTcpBinding, new EndpointAddress(SoaHelper.GetSchedulerDelegationAddress(this.sessionNode.Value)), new InstanceContext(new TraceOnlyServiceJobMonitor())),
-                            LazyThreadSafetyMode.ExecutionAndPublication);
+
+
+                        if (e is FaultException)
+                        {
+                            this.schedulerClient = new Lazy<SchedulerAdapterClient>(
+                                () => new SchedulerAdapterClient(BindingHelper.HardCodedUnSecureNetTcpBinding, new EndpointAddress(SoaHelper.GetSchedulerDelegationAddress(this.sessionNode.Value)), new InstanceContext(new TraceOnlyServiceJobMonitor()), (FaultException)e),
+                                LazyThreadSafetyMode.ExecutionAndPublication);
+                        }
+                        else
+                        {
+                            this.schedulerClient = new Lazy<SchedulerAdapterClient>(
+                                () => new SchedulerAdapterClient(BindingHelper.HardCodedUnSecureNetTcpBinding, new EndpointAddress(SoaHelper.GetSchedulerDelegationAddress(this.sessionNode.Value)), new InstanceContext(new TraceOnlyServiceJobMonitor())),
+                                LazyThreadSafetyMode.ExecutionAndPublication);
+                        }
+
                     }
                 }
                 finally
@@ -506,7 +518,7 @@ namespace Microsoft.Telepathy.Internal.BrokerLauncher
         /// <summary>
         /// Renew client proxy to scheduler adapter internal service
         /// </summary>
-        private async Task RenewSessionLauncherClientAsync()
+        private async Task RenewSessionLauncherClientAsync(Exception e)
         {
             if (this.sessionLauncherClient.IsValueCreated)
             {
@@ -522,9 +534,19 @@ namespace Microsoft.Telepathy.Internal.BrokerLauncher
 
                         this.sessionNode = new Lazy<string>(() => this.ResolveSessionNodeWithRetries().GetAwaiter().GetResult(), LazyThreadSafetyMode.ExecutionAndPublication);
                         this.certThumbprint = new Lazy<string>(() => this.context.GetSSLThumbprint().GetAwaiter().GetResult(), LazyThreadSafetyMode.ExecutionAndPublication);
-                        this.sessionLauncherClient = new Lazy<SessionLauncherClient>(
-                            () => new SessionLauncherClient(this.sessionNode.Value, this.certThumbprint.Value),
+
+                        if (e is FaultException)
+                        {
+                            this.sessionLauncherClient = new Lazy<SessionLauncherClient>(
+                            () => new SessionLauncherClient(this.sessionNode.Value, this.certThumbprint.Value, (FaultException)e),
                             LazyThreadSafetyMode.ExecutionAndPublication);
+                        }
+                        else
+                        {
+                            this.sessionLauncherClient = new Lazy<SessionLauncherClient>(
+                                () => new SessionLauncherClient(this.sessionNode.Value, this.certThumbprint.Value),
+                                LazyThreadSafetyMode.ExecutionAndPublication);
+                        }
                     }
                 }
                 finally
@@ -558,7 +580,7 @@ namespace Microsoft.Telepathy.Internal.BrokerLauncher
                 async (e, r) =>
                     {
                         TraceHelper.TraceEvent(sessionId, TraceEventType.Error, "[BrokerLauncher.SchedulerHelper] UpdateBrokerInfo failed: Exception = {0}\nRetryCount = {1}", e, r.RetryCount);
-                        await this.RenewSchedulerAdapterClientAsync().ConfigureAwait(false);
+                        await this.RenewSchedulerAdapterClientAsync(e).ConfigureAwait(false);
                     },
                 retry).ConfigureAwait(false);
         }

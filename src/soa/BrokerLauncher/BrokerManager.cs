@@ -286,6 +286,24 @@ namespace Microsoft.Telepathy.Internal.BrokerLauncher
             }
         }
 
+        public string GetBrokerMsgFingerprint(string sessionId)
+        {
+            BrokerInfo info = null;
+            lock (this.brokerDic)
+            {
+                this.brokerDic.TryGetValue(sessionId, out info);
+            }
+
+            if (info != null)
+            {
+                info.CheckAccess();
+                return info.HeaderFingerprint;
+            }
+            else
+            {
+                return null;
+            }
+        }
         /// <summary>
         /// Attach to a existing broker
         /// </summary>
@@ -682,7 +700,7 @@ namespace Microsoft.Telepathy.Internal.BrokerLauncher
             if (recoverInfo.StartInfo.UseIds)
             {
                 brokerInfo.JobOwnerSID = await this.schedulerHelper.GetJobOwnerSID(brokerInfo.SessionId);
-                    //ClaimsPrincipal.Current.FindFirst(JwtClaimTypes.Subject).Value;
+                brokerInfo.HeaderFinger = Guid.NewGuid().ToString();
             }
             brokerInfo.Durable = recoverInfo.Durable;
             brokerInfo.Attached = attached;

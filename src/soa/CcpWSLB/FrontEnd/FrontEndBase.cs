@@ -16,7 +16,7 @@ namespace Microsoft.Telepathy.ServiceBroker.FrontEnd
     using Microsoft.Telepathy.Session;
     using Microsoft.Telepathy.Session.Interface;
     using Microsoft.Telepathy.Session.Internal;
-    using IdentityUtil;
+    using SimpleAuth;
 
     /// <summary>
     /// Base class for all frontends
@@ -88,7 +88,8 @@ namespace Microsoft.Telepathy.ServiceBroker.FrontEnd
         /// </summary>
         private SharedData sharedData;
 
-        private Lazy<IdentityServiceAuthManager> identityAuthorizationManager = new Lazy<IdentityServiceAuthManager>(() => new IdentityServiceAuthManager(null, IdentityUtil.IdentityServerUrl, "SessionLauncher"));
+        //private Lazy<IdentityServiceAuthManager> identityAuthorizationManager = new Lazy<IdentityServiceAuthManager>(() => new IdentityServiceAuthManager(null, IdentityUtil.IdentityServerUrl, "SessionLauncher"));
+        private Lazy<SimpleAuthManager> simpleAuthManager;
         /// <summary>
         /// Initializes a new instance of the FrontEndBase class
         /// </summary>
@@ -111,6 +112,7 @@ namespace Microsoft.Telepathy.ServiceBroker.FrontEnd
             this.sharedData = sharedData;
             this.observer.OnStartThrottling += this.StartThrottling;
             this.observer.OnStopThrottling += this.StopThrottling;
+            this.simpleAuthManager = new Lazy<SimpleAuthManager>(() => new SimpleAuthManager(sharedData.BrokerInfo.HeaderFinger));
         }
 
         /// <summary>
@@ -304,10 +306,10 @@ namespace Microsoft.Telepathy.ServiceBroker.FrontEnd
 
         protected bool CheckIdentityMsgHeaderAndSetPrincipal(Message message)
         {
-            var header = AuthMessageHeader.ReadHeader(message);
+            var header = SimpleAuthHeader.ReadHeader(message);
             if (header != null)
             {
-                if (this.identityAuthorizationManager.Value.CheckHeaderAccess(header))
+                if (this.simpleAuthManager.Value.CheckHeaderAccess(header))
                 {
                     return true;
                 }

@@ -517,6 +517,26 @@ namespace Microsoft.Telepathy.Session
             throw new SessionException(SOAFaultCode.SessionLauncherEndpointNotFound, string.Format(SR.SessionLauncherEndpointNotFound, headnode));
         }
 
+        public string GetMsgHeaderFingerprint()
+        {
+            try
+            {
+                IBrokerLauncher broker = this.BrokerLauncherClient;
+                if (broker == null)
+                {
+                    broker = this.factory?.GetBrokerLauncherClient(Constant.PurgeTimeoutMS);
+                }
+
+                return broker?.GetBrokerMsgFingerprint(this.Id);
+            }
+            catch (Exception ex)
+            {
+                TraceSource.TraceInformation(ex.ToString());
+                throw;
+            }
+        }
+
+
         /// <summary>
         /// Build session info
         /// </summary>
@@ -566,6 +586,7 @@ namespace Microsoft.Telepathy.Session
             info.AzureRequestBlobUri = result.AzureRequestBlobUri;
             info.UseAad = startInfo.UseAad;
             info.UseIds = startInfo.UseIds;
+            info.IdsUrl = startInfo.IdsUrl;
             info.AzureControllerRequestQueueUri = result.AzureControllerRequestQueueUri;
             info.AzureControllerResponseQueueUri = result.AzureControllerResponseQueueUri;
 

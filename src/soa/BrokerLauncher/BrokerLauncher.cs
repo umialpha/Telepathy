@@ -632,6 +632,21 @@ namespace Microsoft.Telepathy.Internal.BrokerLauncher
             return !clientConnectionFailed;
         }
 
+        public string GetBrokerMsgFingerprint(string sessionID)
+        {
+            try
+            {
+                this.CheckAccess(sessionID);
+
+                return this.brokerManager.GetBrokerMsgFingerprint(sessionID);
+            }
+            catch (Exception e)
+            {
+                TraceHelper.TraceEvent(sessionID, TraceEventType.Error, "[BrokerLauncher] Get session {0} message fingerprint failed: {1}", sessionID, e);
+                throw ExceptionHelper.ConvertExceptionToFaultException(e);
+            }
+        }
+
         #endregion
     }
 }

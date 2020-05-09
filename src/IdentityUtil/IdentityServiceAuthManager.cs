@@ -83,7 +83,7 @@ namespace IdentityUtil
                     MessageFault.CreateFault(
                         new FaultCode(IdentityMessageFault.FaultCode),
                         new FaultReason("Unauthenticated"),
-                        new IdentityMessageFault(authority, IdentityUtil.DefaultROClientId, IdentityUtil.DefaultClientSecret, audience)));
+                        new IdentityMessageFault(authority, audience)));
             }
 
             var parameters = new TokenValidationParameters
@@ -106,7 +106,7 @@ namespace IdentityUtil
                     MessageFault.CreateFault(
                         new FaultCode(IdentityMessageFault.FaultCode),
                         new FaultReason("Invalid Jwt"),
-                        new IdentityMessageFault(authority, IdentityUtil.DefaultROClientId, IdentityUtil.DefaultClientSecret, audience)));
+                        new IdentityMessageFault(authority, audience)));
             }
         }
     }

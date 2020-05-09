@@ -366,6 +366,21 @@ namespace Microsoft.Telepathy.Session.Internal
             {
                 throw new NotSupportedException();
             }
+
+            public string GetBrokerMsgFingerprint(string sessionID)
+            {
+                throw new NotImplementedException();
+            }
+
+            public IAsyncResult BeginGetBrokerMsgFingerprint(string sessionId, AsyncCallback callback, object state)
+            {
+                throw new NotImplementedException();
+            }
+
+            public string EndGetBrokerMsgFingerprint(IAsyncResult result)
+            {
+                throw new NotImplementedException();
+            }
             #endregion
         }
     }

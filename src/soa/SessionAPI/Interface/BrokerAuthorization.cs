@@ -165,7 +165,7 @@ namespace Microsoft.Telepathy.Session.Interface
                 return true;
             }
 
-            if (user.User?.Value == this.allowedUser)
+            if (user.Name.Equals(this.allowedUser))
             {
                 return true;
             }

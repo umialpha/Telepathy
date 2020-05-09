@@ -49,9 +49,9 @@ namespace Microsoft.Telepathy.Session.Internal
 
             this.client = new SessionLauncherClient(info, binding);
 
-            if (info.UseIds)
+            if (info.UseIds && !string.IsNullOrEmpty(info.IdsUrl))
             {
-                this.client.Endpoint.Behaviors.AddBehaviorForWinAuthClient().GetAwaiter().GetResult();
+                this.client.Endpoint.Behaviors.AddBehaviorForWinAuthClient(info.IdsUrl, IdentityUtil.SessionLauncherApi).GetAwaiter().GetResult();
             }
         }
 
@@ -78,9 +78,9 @@ namespace Microsoft.Telepathy.Session.Internal
 
             this.client = new SessionLauncherClient(info, binding);
 
-            if (info.UseIds)
+            if (info.UseIds && !string.IsNullOrEmpty(info.IdsUrl))
             {
-                this.client.Endpoint.Behaviors.AddBehaviorForWinAuthClient().GetAwaiter().GetResult();
+                this.client.Endpoint.Behaviors.AddBehaviorForWinAuthClient(info.IdsUrl, IdentityUtil.SessionLauncherApi).GetAwaiter().GetResult();
             }
         }
 

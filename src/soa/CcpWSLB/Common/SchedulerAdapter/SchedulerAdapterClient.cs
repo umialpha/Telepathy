@@ -24,15 +24,19 @@ namespace Microsoft.Telepathy.ServiceBroker.Common.SchedulerAdapter
 
         private DispatcherManager dispatcherManager = null;
 
-        public SchedulerAdapterClient(Binding binding, EndpointAddress address, InstanceContext context) : this(binding, address, null, null, context)
+        public SchedulerAdapterClient(Binding binding, EndpointAddress address, InstanceContext context, FaultException fault = null) : this(binding, address, null, null, context, fault)
         {
         }
 
-        internal SchedulerAdapterClient(Binding binding, EndpointAddress address, string[] predefinedSvcHost, DispatcherManager dispatcherManager, InstanceContext instanceContext) : base(instanceContext, binding, address)
+        internal SchedulerAdapterClient(Binding binding, EndpointAddress address, string[] predefinedSvcHost, DispatcherManager dispatcherManager, InstanceContext instanceContext, FaultException fault = null) : base(instanceContext, binding, address)
         {
             this.predefinedSvcHost = predefinedSvcHost;
             this.dispatcherManager = dispatcherManager;
-            this.Endpoint.Behaviors.AddBehaviorForClient(IdentityUtil.SchedulerAdapterApi).GetAwaiter().GetResult();
+            if (fault != null && fault.Code.Name.Equals(IdentityMessageFault.FaultCode))
+            {
+                IdentityMessageFault faultDetail = fault.CreateMessageFault().GetDetail<IdentityMessageFault>();
+                this.Endpoint.Behaviors.AddBehaviorFromExForClient(faultDetail).GetAwaiter().GetResult();
+            }
         }
 
         public async Task<bool> UpdateBrokerInfoAsync(string sessionId, Dictionary<string, object> properties) => await this.Channel.UpdateBrokerInfoAsync(sessionId, properties);

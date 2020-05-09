@@ -35,6 +35,8 @@ namespace Microsoft.Telepathy.Session.Internal
 
         public bool UseIds { get; set; }
 
+        public string IdsUrl { get; set; }
+
         private bool useLocalUser = false;
 
         /// <summary>

@@ -237,8 +237,12 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\IdentityUtil\IdentityUtil.csproj">
-      <Project>{EB306C35-6174-407F-A9BA-756E21E38D1B}</Project>
+      <Project>{eb306c35-6174-407f-a9ba-756e21e38d1b}</Project>
       <Name>IdentityUtil</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\SimpleAuth\SimpleAuth.csproj">
+      <Project>{61a8a31d-157d-478b-819d-62afd7bb5bed}</Project>
+      <Name>SimpleAuth</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\TelepathyCommon\TelepathyCommon.csproj">
       <Project>{1F7D53E1-7C00-4DE4-AD73-B0BB17BC1BFB}</Project>

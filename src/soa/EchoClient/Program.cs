@@ -141,6 +141,7 @@ namespace Microsoft.Telepathy.EchoClient
             info.UseWindowsClientCredential = config.UseWCC;
             info.UseAad = config.UseAad;
             info.UseIds = config.UseIds;
+            info.IdsUrl = config.IdsUrl;
 
             if (config.Runtime > 0)
             {

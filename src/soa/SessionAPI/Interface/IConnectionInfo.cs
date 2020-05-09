@@ -20,6 +20,7 @@ namespace Microsoft.Telepathy.Session.Interface
 
         bool UseIds { get; set; }
 
+        string IdsUrl { get; set; }
         /// <summary>
         /// If the user is a local user
         /// </summary>

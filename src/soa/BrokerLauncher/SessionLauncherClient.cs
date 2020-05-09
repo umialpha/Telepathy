@@ -23,8 +23,8 @@ namespace Microsoft.Telepathy.Internal.BrokerLauncher
         /// Initializes a new instance of the SessionLauncherClient class by indicating the head node machine name
         /// </summary>
         /// <param name="headNode">indicating the head node</param>
-        public SessionLauncherClient(string headNode, string certThumbprint)
-            : this(GetSessionLauncherUri(headNode), certThumbprint)
+        public SessionLauncherClient(string headNode, string certThumbprint, FaultException fault = null)
+            : this(GetSessionLauncherUri(headNode), certThumbprint, fault)
         {
         }
 
@@ -32,7 +32,7 @@ namespace Microsoft.Telepathy.Internal.BrokerLauncher
         /// Initializes a new instance of the SessionLauncherClient class.
         /// </summary>
         /// <param name="uri">the session launcher EPR</param>
-        public SessionLauncherClient(Uri uri, string certThumbprint)
+        public SessionLauncherClient(Uri uri, string certThumbprint, FaultException fault)
             : base(GetBinding(), GetEndpoint(uri, certThumbprint))
         {
 #if HPCPACK
@@ -41,7 +41,12 @@ namespace Microsoft.Telepathy.Internal.BrokerLauncher
             this.ClientCredentials.ServiceCertificate.Authentication.RevocationMode = X509RevocationMode.NoCheck;
             this.ClientCredentials.ClientCertificate.SetCertificate(StoreLocation.LocalMachine, StoreName.My, X509FindType.FindByThumbprint, certThumbprint);
 #endif
-            this.Endpoint.Behaviors.AddBehaviorForClient(IdentityUtil.SessionLauncherApi).GetAwaiter().GetResult();
+            if (fault != null && fault.Code.Name.Equals(IdentityMessageFault.FaultCode))
+            {
+                IdentityMessageFault faultDetail = fault.CreateMessageFault().GetDetail<IdentityMessageFault>();
+                this.Endpoint.Behaviors.AddBehaviorFromExForClient(faultDetail).GetAwaiter().GetResult();
+            }
+
             if (!SoaHelper.IsOnAzure())
             {
                 this.ClientCredentials.Windows.AllowedImpersonationLevel = TokenImpersonationLevel.Impersonation;

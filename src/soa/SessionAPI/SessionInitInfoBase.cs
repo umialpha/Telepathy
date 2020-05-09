@@ -48,6 +48,8 @@ namespace Microsoft.Telepathy.Session
 
         public bool UseIds { get; set; }
 
+        public string IdsUrl { get; set; }
+
         private bool useLocalUser = false;
 
         /// <summary>

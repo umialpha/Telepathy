@@ -35,9 +35,9 @@ namespace Microsoft.Telepathy.Session.Internal
 
         private void InitAzureOrAadOrCertAuth(IConnectionInfo info, string username, string password)
         {
-            if (info.UseIds)
+            if (info.UseIds && !string.IsNullOrEmpty(info.IdsUrl))
             {
-                this.Endpoint.Behaviors.AddBehaviorForWinAuthClient("BrokerLauncher").GetAwaiter().GetResult();
+                this.Endpoint.Behaviors.AddBehaviorForWinAuthClient(info.IdsUrl, IdentityUtil.BrokerLauncherApi).GetAwaiter().GetResult();
             }
 #if HPCPACK
             if (!SoaHelper.IsOnAzure() && !info.UseAad)

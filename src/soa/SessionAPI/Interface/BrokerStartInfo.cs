@@ -107,6 +107,15 @@ namespace Microsoft.Telepathy.Session.Interface
 
         private string azureStorageConnectionString;
 
+        private string headerFinger;
+
+        [DataMember]
+        public string HeaderFinger
+        {
+            get { return this.headerFinger; }
+            set { this.headerFinger = value; }
+        }
+
         /// <summary>
         /// Gets or sets a value indicating whether the broker is started by attach
         /// </summary>

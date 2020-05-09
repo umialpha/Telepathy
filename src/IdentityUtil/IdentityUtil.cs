@@ -12,8 +12,6 @@ namespace IdentityUtil
 
     public static class IdentityUtil
     {
-        private const string identityServerUrl = "https://localhost:44372";
-
         private const string defaultROClientId = "ro.client";
 
         private const string defaultClientSecret = "secret";
@@ -29,11 +27,6 @@ namespace IdentityUtil
         private const string schedulerAdapterApi = "SchedulerAdapter";
 
         private const string brokerLauncherApi = "BrokerLauncher";
-
-        public static string IdentityServerUrl
-        {
-            get { return identityServerUrl; }
-        }
 
         public static string DefaultROClientId
         {
@@ -82,7 +75,7 @@ namespace IdentityUtil
             return tokenResponse.AccessToken;
         }
 
-        public static async Task<string> GetJwtTokenFromWinAuthAsync(string authority = identityServerUrl, string clientId = defaultWinAuthClientId, string clientSecret = defaultClientSecret, string scope = sessionLauncherApi)
+        public static async Task<string> GetJwtTokenFromWinAuthAsync(string authority, string scope)
         {
             var disco = await GetDiscoveryResponse(authority);
 
@@ -95,8 +88,8 @@ namespace IdentityUtil
             var tokenResponse = await client.RequestTokenAsync(new TokenRequest()
             {
                 Address = disco.TokenEndpoint,
-                ClientId = clientId,
-                ClientSecret = clientSecret,
+                ClientId = defaultWinAuthClientId,
+                ClientSecret = defaultClientSecret,
                 GrantType = WinAuthGrantType,
                 Parameters =
                 {
@@ -134,32 +127,28 @@ namespace IdentityUtil
             return disco;
         }
 
-        public static async Task<KeyedByTypeCollection<IEndpointBehavior>> AddBehaviorForClient(
-            this KeyedByTypeCollection<IEndpointBehavior> behaviors, string scope)
-        {
-            var token = await GetJwtTokenFromClientAsync(IdentityServerUrl, DefaultClientId, DefaultClientSecret,
-                scope).ConfigureAwait(false);
-            behaviors.Add(new IdentityServiceEndpointBehavior(token));
-            return behaviors;
-        }
-
         public static async Task<KeyedByTypeCollection<IEndpointBehavior>> AddBehaviorForWinAuthClient(
-            this KeyedByTypeCollection<IEndpointBehavior> behaviors, string scope = sessionLauncherApi)
+            this KeyedByTypeCollection<IEndpointBehavior> behaviors, string authority, string scope)
         {
-            var token = await GetJwtTokenFromWinAuthAsync(scope: scope).ConfigureAwait(false);
+            var token = await GetJwtTokenFromWinAuthAsync(authority, scope).ConfigureAwait(false);
             behaviors.Add(new IdentityServiceEndpointBehavior(token));
             return behaviors;
         }
 
-        public static async Task<KeyedByTypeCollection<IEndpointBehavior>> AddBehaviorFromEx(
-            this KeyedByTypeCollection<IEndpointBehavior> behaviors, IdentityMessageFault faultDetail, string username,
-            string password)
+        public static async Task<KeyedByTypeCollection<IEndpointBehavior>> AddBehaviorFromExForWinAuth(
+            this KeyedByTypeCollection<IEndpointBehavior> behaviors, IdentityMessageFault faultDetail)
         {
-            var token = await GetJwtTokenFromROAsync(faultDetail.Authority, faultDetail.ClientId, faultDetail.ClientSecret,
-                username, password, faultDetail.ServiceScope).ConfigureAwait(false);
+            var token = await GetJwtTokenFromWinAuthAsync(faultDetail.Authority, faultDetail.ServiceScope).ConfigureAwait(false);
             behaviors.Add(new IdentityServiceEndpointBehavior(token));
             return behaviors;
         }
 
+        public static async Task<KeyedByTypeCollection<IEndpointBehavior>> AddBehaviorFromExForClient(
+            this KeyedByTypeCollection<IEndpointBehavior> behaviors, IdentityMessageFault faultDetail)
+        {
+            var token = await GetJwtTokenFromClientAsync(faultDetail.Authority, DefaultClientId, DefaultClientSecret, faultDetail.ServiceScope).ConfigureAwait(false);
+            behaviors.Add(new IdentityServiceEndpointBehavior(token));
+            return behaviors;
+        }
     }
 }
