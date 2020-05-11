@@ -12,6 +12,7 @@
     <Localizable>true</Localizable>
     <AssemblyDescription>HPC Broker Worker Service</AssemblyDescription>
     <OutputPath>..\BrokerOutput\$(Configuration)\</OutputPath>
+    <DockerComposeProjectPath>..\..\..\docker-compose.dcproj</DockerComposeProjectPath>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x64' ">
     <DebugSymbols>true</DebugSymbols>
@@ -49,6 +50,7 @@
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
     <Prefer32Bit>true</Prefer32Bit>
+    <OutputPath>bin\Release\</OutputPath>
   </PropertyGroup>
   <PropertyGroup>
     <StartupObject />
@@ -109,11 +111,15 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
+    <None Include=".dockerignore">
+      <DependentUpon>Dockerfile</DependentUpon>
+    </None>
     <None Include="App.config" />
     <None Include="BrokerWorkerSetting.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>BrokerWorkerSetting.Designer.cs</LastGenOutput>
     </None>
+    <None Include="Dockerfile" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json">

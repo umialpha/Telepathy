@@ -1,0 +1,22 @@
+version: '3.4'
+
+services:
+  sessionlauncher:
+    image: ${DOCKER_REGISTRY-}sessionlauncher
+    build:
+      context: .\src\soa\SessionLauncher
+      dockerfile: Dockerfile
+
+  hpcbrokerworker:
+    image: ${DOCKER_REGISTRY-}hpcbrokerworker
+    build:
+      context: .\src\soa\HpcBrokerWorker
+      dockerfile: Dockerfile
+
+
+  brokerlauncher:
+    image: ${DOCKER_REGISTRY-}brokerlauncher
+    build:
+      context: .\src\soa\BrokerLauncher
+      dockerfile: Dockerfile
+
