@@ -19,7 +19,8 @@ namespace IdentityServer
             {
                 new ApiResource("SessionLauncher"),
                 new ApiResource("SchedulerAdapter"),
-                new ApiResource("BrokerLauncher")
+                new ApiResource("BrokerLauncher"),
+                new ApiResource("BrokerWorker")
             };
         
         public static IEnumerable<Client> Clients =>
@@ -76,7 +77,8 @@ namespace IdentityServer
                     AllowedScopes =
                     {
                         "SessionLauncher",
-                        "BrokerLauncher"
+                        "BrokerLauncher",
+                        "BrokerWorker"
                     }
                 }
             };

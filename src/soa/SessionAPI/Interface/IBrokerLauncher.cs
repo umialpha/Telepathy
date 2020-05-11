@@ -155,15 +155,6 @@ namespace Microsoft.Telepathy.Session.Interface
         /// </summary>
         void EndClose(IAsyncResult result);
 
-        [OperationContract]
-        [FaultContract(typeof(SessionFault), Action = SessionFault.Action)]
-        string GetBrokerMsgFingerprint(string sessionID);
-
-        [OperationContract(AsyncPattern = true)]
-        IAsyncResult BeginGetBrokerMsgFingerprint(string sessionID, AsyncCallback callback, object state);
-
-        string EndGetBrokerMsgFingerprint(IAsyncResult result);
-
         /// <summary>
         /// Gets the active broker id list
         /// </summary>

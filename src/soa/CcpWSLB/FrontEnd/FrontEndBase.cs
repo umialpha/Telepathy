@@ -10,13 +10,12 @@ namespace Microsoft.Telepathy.ServiceBroker.FrontEnd
     using System.ServiceModel.Channels;
     using System.Threading;
     using System.Threading.Tasks;
-
+    using IdentityUtil;
     using Microsoft.Telepathy.ServiceBroker.Common;
     using Microsoft.Telepathy.ServiceBroker.Common.ThreadHelper;
     using Microsoft.Telepathy.Session;
     using Microsoft.Telepathy.Session.Interface;
     using Microsoft.Telepathy.Session.Internal;
-    using SimpleAuth;
 
     /// <summary>
     /// Base class for all frontends
@@ -88,8 +87,8 @@ namespace Microsoft.Telepathy.ServiceBroker.FrontEnd
         /// </summary>
         private SharedData sharedData;
 
-        //private Lazy<IdentityServiceAuthManager> identityAuthorizationManager = new Lazy<IdentityServiceAuthManager>(() => new IdentityServiceAuthManager(null, IdentityUtil.IdentityServerUrl, "SessionLauncher"));
-        private Lazy<SimpleAuthManager> simpleAuthManager;
+        private Lazy<IdentityServiceAuthManager> identityAuthorizationManager;// = new Lazy<IdentityServiceAuthManager>(() => new IdentityServiceAuthManager(null, IdentityUtil.IdentityServerUrl, "SessionLauncher"));
+        //private Lazy<SimpleAuthManager> simpleAuthManager;
         /// <summary>
         /// Initializes a new instance of the FrontEndBase class
         /// </summary>
@@ -112,7 +111,7 @@ namespace Microsoft.Telepathy.ServiceBroker.FrontEnd
             this.sharedData = sharedData;
             this.observer.OnStartThrottling += this.StartThrottling;
             this.observer.OnStopThrottling += this.StopThrottling;
-            this.simpleAuthManager = new Lazy<SimpleAuthManager>(() => new SimpleAuthManager(sharedData.BrokerInfo.HeaderFinger));
+            this.identityAuthorizationManager = new Lazy<IdentityServiceAuthManager>(() => new IdentityServiceAuthManager(null, sharedData.BrokerInfo.IdentityServerUrl, IdentityUtil.BrokerWorkerApi));
         }
 
         /// <summary>
@@ -306,10 +305,10 @@ namespace Microsoft.Telepathy.ServiceBroker.FrontEnd
 
         protected bool CheckIdentityMsgHeaderAndSetPrincipal(Message message)
         {
-            var header = SimpleAuthHeader.ReadHeader(message);
+            var header = AuthMessageHeader.ReadHeader(message);
             if (header != null)
             {
-                if (this.simpleAuthManager.Value.CheckHeaderAccess(header))
+                if (this.identityAuthorizationManager.Value.CheckHeaderAccess(header))
                 {
                     return true;
                 }

@@ -5,7 +5,6 @@ namespace IdentityUtil
     using System;
     using System.Collections.Generic;
     using System.Net.Http;
-    using System.Security.Principal;
     using System.ServiceModel.Description;
     using System.Threading.Tasks;
     using IdentityModel.Client;
@@ -27,6 +26,8 @@ namespace IdentityUtil
         private const string schedulerAdapterApi = "SchedulerAdapter";
 
         private const string brokerLauncherApi = "BrokerLauncher";
+
+        private const string brokerWorkerApi = "BrokerWorker";
 
         public static string DefaultROClientId
         {
@@ -56,6 +57,11 @@ namespace IdentityUtil
         public static string BrokerLauncherApi
         {
             get { return brokerLauncherApi; }
+        }
+
+        public static string BrokerWorkerApi
+        {
+            get { return brokerWorkerApi; }
         }
 
         public static async Task<string> GetJwtTokenFromROAsync(string authority, string clientId, string clientSecret, string userName, string password, string scope)

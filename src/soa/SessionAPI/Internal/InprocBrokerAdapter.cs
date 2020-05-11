@@ -807,21 +807,6 @@ namespace Microsoft.Telepathy.Session.Internal
             }
         }
 
-        public string GetBrokerMsgFingerprint(string sessionID)
-        {
-            throw new NotImplementedException();
-        }
-
-        public IAsyncResult BeginGetBrokerMsgFingerprint(string sessionId, AsyncCallback callback, object state)
-        {
-            throw new NotImplementedException();
-        }
-
-        public string EndGetBrokerMsgFingerprint(IAsyncResult result)
-        {
-            throw new NotImplementedException();
-        }
-
         /// <summary>
         /// Broker frontend adapter for inprocess broker
         /// This adapter simulates connection shutdown by accepting a "ShutdownConnection" call.

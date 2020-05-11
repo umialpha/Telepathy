@@ -19,7 +19,7 @@ namespace Microsoft.Telepathy.Session
     using Microsoft.Telepathy.Session.Interface;
     using Microsoft.Telepathy.Session.Internal;
     using Microsoft.Telepathy.Session.Internal.AzureQueue;
-    using SimpleAuth;
+    using IdentityUtil;
 
     /// <summary>
     ///   <para>Provides methods that enable clients to connect to a session and 
@@ -408,14 +408,6 @@ namespace Microsoft.Telepathy.Session
                 this.instanceIdHeader = MessageHeader.CreateHeader(Constant.ClientInstanceIdHeaderName, Constant.HpcHeaderNS, this.batchId);
             }
 
-            string msgFingerprint = null;
-
-            if (this.session.Info.UseIds)
-            {
-                msgFingerprint = this.session.GetMsgHeaderFingerprint();
-                this.jwtTokenCache = msgFingerprint;
-            } 
-
             // Create a fake channel to the service to get contract description
             ChannelFactory<TContract> channelFactory = new ChannelFactory<TContract>();
             this.operations = channelFactory.Endpoint.Contract.Operations;
@@ -496,7 +488,7 @@ namespace Microsoft.Telepathy.Session
             }
             else
             {
-                this.frontendFactory = new WSBrokerFrontendFactory(this.clientId, binding, (SessionInfo)this.session.Info, scheme, this.callbackManager, msgFingerprint);
+                this.frontendFactory = new WSBrokerFrontendFactory(this.clientId, binding, (SessionInfo)this.session.Info, scheme, this.callbackManager);
             }
 
             SessionBase.TraceSource.TraceInformation(
@@ -512,6 +504,10 @@ namespace Microsoft.Telepathy.Session
             //     this.frontendFactory = new WebBrokerFrontendFactory((WebSessionInfo)this.session.Info, this.clientId, this.callbackManager);
             //     SessionBase.TraceSource.TraceInformation("[Session:{0}] BrokerClient instance created. ClientId = {1}, Scheme = {2}, DefaultSendTimeout = {3}, DefaultResponsesTimeout = {4}", this.session.Id, this.clientId, TransportScheme.WebAPI, this.defaultSendTimeout, this.defaultResponsesTimeout);
             // }
+            if (this.session.Info.UseIds)
+            {
+                this.jwtTokenCache = IdentityUtil.GetJwtTokenFromWinAuthAsync(this.session.Info.IdsUrl, IdentityUtil.BrokerWorkerApi).GetAwaiter().GetResult();
+            }
 #if !net40 && HPCPACK
             if (this.session.Info.UseAad)
             {
@@ -931,7 +927,7 @@ namespace Microsoft.Telepathy.Session
 
                 if (this.session.Info.UseIds)
                 {
-                    message.Headers.Add(new SimpleAuthHeader(this.jwtTokenCache));
+                    message.Headers.Add(new AuthMessageHeader(this.jwtTokenCache));
                 }
 
                 if (IsDurableSession(this.session))

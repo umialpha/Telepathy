@@ -248,10 +248,6 @@
       <Project>{eb306c35-6174-407f-a9ba-756e21e38d1b}</Project>
       <Name>IdentityUtil</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\SimpleAuth\SimpleAuth.csproj">
-      <Project>{61a8a31d-157d-478b-819d-62afd7bb5bed}</Project>
-      <Name>SimpleAuth</Name>
-    </ProjectReference>
     <ProjectReference Include="..\..\StandaloneDataClient\StandaloneDataClient.csproj">
       <Project>{8f4412aa-a6e0-49e5-a331-1b1047e2159d}</Project>
       <Name>StandaloneDataClient</Name>

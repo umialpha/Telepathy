@@ -255,21 +255,5 @@ namespace Microsoft.Telepathy.Session.Internal
         {
             return this.Channel.EndPingBroker2(result);
         }
-
-        public string GetBrokerMsgFingerprint(string sessionID)
-        {
-            IAsyncResult result = this.Channel.BeginGetBrokerMsgFingerprint(sessionID, null, null);
-            return this.Channel.EndGetBrokerMsgFingerprint(result);
-        }
-
-        public IAsyncResult BeginGetBrokerMsgFingerprint(string sessionId, AsyncCallback callback, object state)
-        {
-            return this.Channel.BeginGetBrokerMsgFingerprint(sessionId, callback, state);
-        }
-
-        public string EndGetBrokerMsgFingerprint(IAsyncResult result)
-        {
-            return this.Channel.EndGetBrokerMsgFingerprint(result);
-        }
     }
 }

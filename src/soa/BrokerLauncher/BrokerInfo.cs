@@ -191,11 +191,6 @@ namespace Microsoft.Telepathy.Internal.BrokerLauncher
             get { return this.brokerInfo.JobOwnerSID; }
         }
 
-        public string HeaderFingerprint
-        {
-            get { return this.brokerInfo.HeaderFinger; }
-        }
-
         /// <summary>
         /// Gets or sets the persist version
         /// </summary>

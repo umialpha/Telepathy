@@ -14,7 +14,7 @@ namespace Microsoft.Telepathy.Session.Internal
     using Microsoft.Telepathy.Session.Common;
     using Microsoft.Telepathy.Session.Interface;
     using Microsoft.Telepathy.Session.Internal.AzureQueue;
-    using SimpleAuth;
+    using IdentityUtil;
     /// <summary>
     /// Broker frontend factory to build proxy to communicate to broker
     /// frontend using WS contract
@@ -81,8 +81,6 @@ namespace Microsoft.Telepathy.Session.Internal
         /// </summary>
         private bool schedulerOnIaaS = false;
 
-        private string msgFingerprint;
-
         /// <summary>
         /// Initializes a new instance of the BrokerFrontendFactory class
         /// </summary>
@@ -91,13 +89,13 @@ namespace Microsoft.Telepathy.Session.Internal
         /// <param name="info">indicating the session info</param>
         /// <param name="scheme">indicating the scheme</param>
         /// <param name="responseCallback">indicating the response callback</param>
-        public WSBrokerFrontendFactory(string clientId, Binding binding, SessionInfo info, TransportScheme scheme, IResponseServiceCallback responseCallback, string msgFingerprint)
+        public WSBrokerFrontendFactory(string clientId, Binding binding, SessionInfo info, TransportScheme scheme, IResponseServiceCallback responseCallback)
             : base(clientId, responseCallback)
         {
             this.info = info;
             this.schedulerOnAzure = SoaHelper.IsSchedulerOnAzure(this.info.BrokerLauncherEpr, this.info.UseInprocessBroker);
             this.schedulerOnIaaS = SoaHelper.IsSchedulerOnIaaS(this.info.Headnode);
-            this.msgFingerprint = msgFingerprint;
+
             this.binding = binding;
             this.scheme = scheme;
             if (info.UseInprocessBroker)
@@ -856,8 +854,7 @@ namespace Microsoft.Telepathy.Session.Internal
 
                         if (this.info.UseIds)
                         {
-                            //responseClient.Endpoint.Behaviors.AddBehaviorForWinAuthClient().GetAwaiter().GetResult();
-                            responseClient.Endpoint.Behaviors.Add(new SimpleAuthEndpointBehavior(msgFingerprint));
+                            responseClient.Endpoint.Behaviors.AddBehaviorForWinAuthClient(this.info.IdsUrl, IdentityUtil.BrokerWorkerApi).GetAwaiter().GetResult();
                         }
 
                         client = responseClient;
@@ -872,8 +869,7 @@ namespace Microsoft.Telepathy.Session.Internal
 
                         if (this.info.UseIds)
                         {
-                            //controllerClient.Endpoint.Behaviors.AddBehaviorForWinAuthClient().GetAwaiter().GetResult();
-                            controllerClient.Endpoint.Behaviors.Add(new SimpleAuthEndpointBehavior(msgFingerprint));
+                            controllerClient.Endpoint.Behaviors.AddBehaviorForWinAuthClient(this.info.IdsUrl, IdentityUtil.BrokerWorkerApi).GetAwaiter().GetResult();
                         }
 
                         client = controllerClient;

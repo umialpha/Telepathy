@@ -3,6 +3,7 @@
 namespace IdentityUtil
 {
     using System;
+    using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.IdentityModel.Tokens.Jwt;
     using System.Linq;
@@ -21,6 +22,8 @@ namespace IdentityUtil
         private readonly string audience;
         private string authority;
         private List<string> targetPaths;
+
+        private ConcurrentDictionary<string, JwtInfo> jwtDic = new ConcurrentDictionary<string, JwtInfo>();
 
         public IdentityServiceAuthManager(List<string> targetPaths, string authority, string audience)
         {
@@ -66,7 +69,25 @@ namespace IdentityUtil
 
         public bool CheckHeaderAccess(string header)
         {
-            ClaimsPrincipal principle = this.ValidateJwtToken(header);
+            ClaimsPrincipal principle = null;
+            if (!string.IsNullOrEmpty(header) && jwtDic.ContainsKey(header))
+            {
+                if (jwtDic.TryGetValue(header, out JwtInfo jwtInfo))
+                {
+                    if (jwtInfo.expDate > DateTime.UtcNow)
+                    {
+                        principle = jwtInfo.principal;
+                    }
+                    else
+                    {
+                        jwtDic.TryRemove(header, out _);
+                    }
+                }
+            }
+            else
+            { 
+                principle = this.ValidateJwtToken(header); 
+            }
 
             if (principle == null)
                 return false;
@@ -75,7 +96,7 @@ namespace IdentityUtil
             return true;
         }
 
-        public ClaimsPrincipal ValidateJwtToken(string jwtToken)
+        private ClaimsPrincipal ValidateJwtToken(string jwtToken)
         {
             if (string.IsNullOrEmpty(jwtToken))
             {
@@ -98,7 +119,10 @@ namespace IdentityUtil
 
             try
             {
-                return handler.ValidateToken(jwtToken, parameters, out validatedToken);
+                var principal = handler.ValidateToken(jwtToken, parameters, out validatedToken);
+                jwtDic.TryAdd(jwtToken, new JwtInfo(validatedToken.ValidTo, principal));
+
+                return principal;
             }
             catch
             {
@@ -108,6 +132,18 @@ namespace IdentityUtil
                         new FaultReason("Invalid Jwt"),
                         new IdentityMessageFault(authority, audience)));
             }
+        }
+    }
+
+    class JwtInfo
+    {
+        public DateTime expDate;
+        public ClaimsPrincipal principal;
+
+        public JwtInfo(DateTime expDate, ClaimsPrincipal principal)
+        {
+            this.expDate = expDate;
+            this.principal = principal;
         }
     }
 }

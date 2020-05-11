@@ -70,10 +70,6 @@ namespace Microsoft.Telepathy.Internal.BrokerLauncher
         [FaultContract(typeof(SessionFault), Action = SessionFault.Action)]
         string PingBroker2(string sessionID);
 
-        [OperationContract]
-        [FaultContract(typeof(SessionFault), Action = SessionFault.Action)]
-        string GetBrokerMsgFingerprint(string sessionID);
-
         /// <summary>
         /// Gets the active broker id list
         /// </summary>

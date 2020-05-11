@@ -283,24 +283,6 @@ namespace Microsoft.Telepathy.Internal.BrokerLauncher
             }
         }
 
-        public string GetBrokerMsgFingerprint(string sessionId)
-        {
-            BrokerInfo info = null;
-            lock (this.brokerDic)
-            {
-                this.brokerDic.TryGetValue(sessionId, out info);
-            }
-
-            if (info != null)
-            {
-                info.CheckAccess();
-                return info.HeaderFingerprint;
-            }
-            else
-            {
-                return null;
-            }
-        }
         /// <summary>
         /// Attach to a existing broker
         /// </summary>
@@ -694,10 +676,10 @@ namespace Microsoft.Telepathy.Internal.BrokerLauncher
 #if HPCPACK
             brokerInfo.JobOwnerSID = await this.schedulerHelper.GetJobOwnerSID(brokerInfo.SessionId);
 #endif
-            if (recoverInfo.StartInfo.UseIds)
+            if (recoverInfo.StartInfo.UseIds && !string.IsNullOrEmpty(BrokerLauncherSettings.Default.IdentityServerUrl))
             {
                 brokerInfo.JobOwnerSID = await this.schedulerHelper.GetJobOwnerSID(brokerInfo.SessionId);
-                brokerInfo.HeaderFinger = Guid.NewGuid().ToString();
+                brokerInfo.IdentityServerUrl = BrokerLauncherSettings.Default.IdentityServerUrl;
             }
             brokerInfo.Durable = recoverInfo.Durable;
             brokerInfo.Attached = attached;

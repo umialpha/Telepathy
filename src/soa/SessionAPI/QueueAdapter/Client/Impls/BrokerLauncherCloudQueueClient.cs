@@ -215,20 +215,5 @@ namespace Microsoft.Telepathy.Session.QueueAdapter.Client.Impls
                 TaskScheduler.Default);
             return tcs.Task;
         }
-
-        public string GetBrokerMsgFingerprint(string sessionID)
-        {
-            throw new NotImplementedException();
-        }
-
-        public IAsyncResult BeginGetBrokerMsgFingerprint(string sessionId, AsyncCallback callback, object state)
-        {
-            throw new NotImplementedException();
-        }
-
-        public string EndGetBrokerMsgFingerprint(IAsyncResult result)
-        {
-            throw new NotImplementedException();
-        }
     }
 }

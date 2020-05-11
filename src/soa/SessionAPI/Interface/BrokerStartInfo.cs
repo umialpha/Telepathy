@@ -109,11 +109,20 @@ namespace Microsoft.Telepathy.Session.Interface
 
         private string headerFinger;
 
+        private string identiyServerUrl;
+
         [DataMember]
         public string HeaderFinger
         {
             get { return this.headerFinger; }
             set { this.headerFinger = value; }
+        }
+
+        [DataMember]
+        public string IdentityServerUrl
+        {
+            get { return this.identiyServerUrl; }
+            set { this.identiyServerUrl = value; }
         }
 
         /// <summary>
